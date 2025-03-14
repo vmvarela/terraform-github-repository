@@ -1,4 +1,5 @@
 # Local .terraform directories
+.terraform
 **/.terraform/*
 
 # Terraform lockfile
@@ -33,3 +34,5 @@ terraform.rc
 # Ignore Act vars and secrets
 .vars
 .secrets
+.env
+.act
