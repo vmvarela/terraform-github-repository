@@ -10,8 +10,8 @@ on:
   push:
     #branches:
     #  - master
-    paths:
-      - .devcontainer/**/*
+    #paths:
+    #  - .devcontainer/**/*
 
 jobs:
   docker:
