@@ -8,10 +8,10 @@ on:
     paths:
       - .devcontainer/**/*
   push:
-    #branches:
-    #  - master
-    #paths:
-    #  - .devcontainer/**/*
+    branches:
+      - master
+    paths:
+      - .devcontainer/**/*
 
 jobs:
   docker:
