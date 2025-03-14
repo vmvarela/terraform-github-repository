@@ -18,7 +18,7 @@ module "repo" {
 ## Examples
 
 - [simple](https://github.com/vmvarela/terraform-github-repository/tree/master/examples/simple) - Single repository from a template
-- [complete](https://github.com/vmvarela/terraform-github-repository/tree/master/examples/complete) - Several repositories (configuration from a .yaml)
+- [complete](https://github.com/vmvarela/terraform-github-repository/tree/master/examples/complete) - Several repositories (with configuration from a .yaml)
 
 
 <!-- BEGIN_TF_DOCS -->

@@ -1,6 +1,3 @@
-provider "github" {
-}
-
 module "repo" {
   source             = "../.."
   name               = "test-repo-simple"
