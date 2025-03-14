@@ -29,7 +29,7 @@ module "repo" {
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6 |
 | <a name="requirement_github"></a> [github](#requirement\_github) | >= 6.6.0 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | >= 2.5.2 |
-| <a name="requirement_null"></a> [null](#requirement\_null) | 3.2.3 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | >= 3.2.3 |
 | <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 4.0.6 |
 
 ## Providers
@@ -38,7 +38,7 @@ module "repo" {
 |------|---------|
 | <a name="provider_github"></a> [github](#provider\_github) | >= 6.6.0 |
 | <a name="provider_local"></a> [local](#provider\_local) | >= 2.5.2 |
-| <a name="provider_null"></a> [null](#provider\_null) | 3.2.3 |
+| <a name="provider_null"></a> [null](#provider\_null) | >= 3.2.3 |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | >= 4.0.6 |
 
 ## Modules
@@ -69,7 +69,7 @@ No modules.
 | [github_repository_ruleset.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_ruleset) | resource |
 | [github_repository_webhook.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_webhook) | resource |
 | [local_file.private_key_file](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
-| [null_resource.create_subfolder](https://registry.terraform.io/providers/hashicorp/null/3.2.3/docs/resources/resource) | resource |
+| [null_resource.create_subfolder](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [tls_private_key.this](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
 
 ## Inputs
