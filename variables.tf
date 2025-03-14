@@ -129,13 +129,16 @@ variable "archive_on_destroy" {
 
 # Collaborators
 
-variable "collaborators" {
-  description = "(Optional) The list of collaborators of the repository"
-  type = object({
-    users = optional(map(string), {})
-    teams = optional(map(string), {})
-  })
-  default = {}
+variable "users" {
+  description = "(Optional) The list of collaborators (users) of the repository"
+  type        = map(string)
+  default     = {}
+}
+
+variable "teams" {
+  description = "(Optional) The list of collaborators (teams) of the repository"
+  type        = map(string)
+  default     = {}
 }
 
 

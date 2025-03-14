@@ -93,11 +93,11 @@ resource "github_branch_default" "this" {
 }
 
 resource "github_repository_collaborators" "this" {
-  count      = try(var.collaborators, null) != null ? 1 : 0
+  count      = (try(var.teams, null) != null || try(var.users, null)) ? 1 : 0
   repository = github_repository.this.name
 
   dynamic "user" {
-    for_each = try(var.collaborators.users, null) != null ? var.collaborators.users : {}
+    for_each = try(var.users, null) != null ? var.users : {}
     content {
       permission = user.value
       username   = user.key
@@ -105,7 +105,7 @@ resource "github_repository_collaborators" "this" {
   }
 
   dynamic "team" {
-    for_each = try(var.collaborators, null) != null ? var.collaborators.teams : {}
+    for_each = try(var.teams, null) != null ? var.teams : {}
     content {
       permission = team.value
       team_id    = team.key
