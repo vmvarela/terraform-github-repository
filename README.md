@@ -2,7 +2,7 @@
 
 Terraform module which creates repositories on GitHub.
 
-## Example
+## Usage
 
 ```hcl
 module "repo" {
@@ -11,10 +11,15 @@ module "repo" {
   name           = "my-repo"
   visibility     = "private"
   default_branch = "main"
-  template = "MarketingPipeline/Awesome-Repo-Template"
-  }
+  template       = "MarketingPipeline/Awesome-Repo-Template"
 }
 ```
+
+## Examples
+
+- [simple](https://github.com/vmvarela/terraform-github-repository/tree/master/examples/simple) - Single repository from a template
+- [complete](https://github.com/vmvarela/terraform-github-repository/tree/master/examples/complete) - Several repositories (configuration from a .yaml)
+
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements

@@ -2,8 +2,7 @@ provider "github" {
 }
 
 module "repo" {
-  source = "../.."
-
+  source             = "../.."
   name               = "test-repo-simple"
   visibility         = "private"
   default_branch     = "main"
