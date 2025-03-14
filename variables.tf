@@ -5,6 +5,12 @@ variable "name" {
   type        = string
 }
 
+variable "alias" {
+  description = "(Optional) The original name of the repository (useful for renaming)"
+  type        = string
+  default     = null
+}
+
 variable "description" {
   description = "(Optional) A description of the repository"
   type        = string

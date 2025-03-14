@@ -36,3 +36,6 @@ terraform.rc
 .secrets
 .env
 .act
+
+# Ignore example keys_pem folder
+keys_pem

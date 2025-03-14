@@ -1,6 +1,6 @@
 resource "github_repository" "this" {
   name                                    = var.name
-  description                             = var.description
+  description                             = local.description
   homepage_url                            = var.homepage_url
   visibility                              = var.visibility
   has_issues                              = contains(var.features, "issues")
@@ -93,7 +93,7 @@ resource "github_branch_default" "this" {
 }
 
 resource "github_repository_collaborators" "this" {
-  count      = (try(var.teams, null) != null || try(var.users, null)) ? 1 : 0
+  count      = (try(var.teams, null) != null || try(var.users, null) != null) ? 1 : 0
   repository = github_repository.this.name
 
   dynamic "user" {

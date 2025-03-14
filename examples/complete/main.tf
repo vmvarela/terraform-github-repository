@@ -1,8 +1,7 @@
 module "github" {
-  for_each                    = local.repositories
+  for_each                    = { for k, v in local.repositories : (try(v.alias, null) != null ? v.alias : k) => v }
   source                      = "../../"
   name                        = each.key
-  rename_to                   = try(each.value.rename_to, null)
   deploy_keys_path            = "./keys_pem"
   description                 = try(each.value.description, try(local.defaults.description, null))
   visibility                  = try(each.value.visibility, try(local.defaults.visibility, null))

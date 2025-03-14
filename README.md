@@ -78,6 +78,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_actions_access_level"></a> [actions\_access\_level](#input\_actions\_access\_level) | (Optional) The access level for the repository. Must be one of none, user, organization, or enterprise. Default: none | `string` | `null` | no |
 | <a name="input_actions_permissions"></a> [actions\_permissions](#input\_actions\_permissions) | (Optional) The list of permissions configuration of the repository | <pre>object({<br/>    enabled         = optional(bool)<br/>    allowed_actions = optional(string)<br/>    allowed_actions_config = optional(object({<br/>      github_owned_allowed = optional(bool)<br/>      patterns_allowed     = optional(list(string))<br/>      verified_allowed     = optional(bool)<br/>    }))<br/>  })</pre> | `null` | no |
+| <a name="input_alias"></a> [alias](#input\_alias) | (Optional) The original name of the repository (useful for renaming) | `string` | `null` | no |
 | <a name="input_archive_on_destroy"></a> [archive\_on\_destroy](#input\_archive\_on\_destroy) | (Optional) Set to true to archive the repository instead of deleting on destroy | `bool` | `null` | no |
 | <a name="input_archived"></a> [archived](#input\_archived) | (Optional) Specifies if the repository should be archived. Defaults to false. | `bool` | `null` | no |
 | <a name="input_auto_init"></a> [auto\_init](#input\_auto\_init) | (Optional) Set to true to produce an initial commit in the repository | `bool` | `null` | no |
