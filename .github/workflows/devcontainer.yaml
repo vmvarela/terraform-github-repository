@@ -8,8 +8,8 @@ on:
     paths:
       - .devcontainer/**/*
   push:
-    branches:
-      - master
+    #branches:
+    #  - master
     paths:
       - .devcontainer/**/*
 
