@@ -1,5 +1,5 @@
 resource "github_repository" "this" {
-  name                                    = var.rename_to != null ? var.rename_to : var.name
+  name                                    = var.name
   description                             = var.description
   homepage_url                            = var.homepage_url
   visibility                              = var.visibility

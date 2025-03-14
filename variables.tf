@@ -5,12 +5,6 @@ variable "name" {
   type        = string
 }
 
-variable "rename_to" {
-  description = "(Optional) New name for this repository (useful for renaming, but not changing the name of the resource)"
-  type        = string
-  default     = null
-}
-
 variable "description" {
   description = "(Optional) A description of the repository"
   type        = string
