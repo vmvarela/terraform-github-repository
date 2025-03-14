@@ -6,6 +6,6 @@ jobs:
   release:
     name: Release
     secrets: inherit
-    uses: github.com/vmvarela/workflows/.github/workflows/release.yaml@v0.3.0
+    uses: vmvarela/workflows/.github/workflows/release.yaml@v0.3.0
     with:
       devcontainer: 'ghcr.io/vmvarela/terraform-github-repository:devcontainer'
