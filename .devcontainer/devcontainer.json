@@ -19,7 +19,10 @@
       "vscode": {
         "extensions": [
             "matheusq94.TFS"
-        ]
+        ],
+        "settings": {
+          "terminal.integrated.defaultProfile.linux": "zsh"
+        }
       }
     }
   }
