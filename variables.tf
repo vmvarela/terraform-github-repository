@@ -284,8 +284,8 @@ variable "environments" {
     can_admins_bypass   = optional(bool)
     prevent_self_review = optional(bool)
     reviewers = optional(object({
-      users = optional(map(string), {})
-      teams = optional(map(string), {})
+      users = optional(list(string), [])
+      teams = optional(list(string), [])
     }))
     deployment_branch_policy = optional(object({
       protected_branches     = optional(bool, false)
@@ -325,10 +325,19 @@ variable "pages" {
 
 variable "properties" {
   description = "(Optional) The list of properties of the repository (key: property_name)"
-  type        = map(string)
-  default     = null
+  type        = any
+  default     = {}
 }
 
+variable "properties_types" {
+  description = "(Optional) The list of types associated to properties (key: property_name)"
+  type        = map(string)
+  default     = {}
+  validation {
+    condition     = alltrue([for property_name, property_type in(var.properties_types == null ? {} : var.properties_types) : contains(["single_select", "multi_select", "string", "true_false"], property_type)])
+    error_message = "Possible values for property type are single_select, multi_select, string or true_false"
+  }
+}
 
 # Code security and analysis
 
@@ -394,7 +403,7 @@ variable "files" {
     commit_author       = optional(string)
     commit_email        = optional(string)
     commit_message      = optional(string)
-    overwrite_on_create = optional(bool)
+    overwrite_on_create = optional(bool, true)
   }))
   default = null
 }

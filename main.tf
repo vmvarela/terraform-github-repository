@@ -47,7 +47,7 @@ resource "github_repository" "this" {
     for_each = contains(var.security, "advanced") || contains(var.security, "secret_scanning") ? [1] : []
     content {
       dynamic "advanced_security" {
-        for_each = contains(var.security, "advanced") ? [1] : [] ? [1] : []
+        for_each = contains(var.security, "advanced") ? [1] : []
         content {
           status = "enabled"
         }
@@ -59,7 +59,7 @@ resource "github_repository" "this" {
         }
       }
       dynamic "secret_scanning_push_protection" {
-        for_each = contains(var.security, "secret_scanning_push_protection") ? [1] : [] ? [1] : []
+        for_each = contains(var.security, "secret_scanning_push_protection") ? [1] : []
         content {
           status = "enabled"
         }
@@ -352,8 +352,8 @@ resource "github_repository_environment" "this" {
   dynamic "reviewers" {
     for_each = try(each.value.reviewers, null) != null ? [1] : []
     content {
-      teams = reviewers.value.teams
-      users = reviewers.value.users
+      teams = each.value.reviewers.teams
+      users = each.value.reviewers.users
     }
   }
   dynamic "deployment_branch_policy" {
@@ -423,9 +423,9 @@ resource "github_repository_environment_deployment_policy" "this" {
 }
 
 resource "github_repository_custom_property" "this" {
-  for_each       = try(var.properties, null) != null ? var.properties : {}
+  for_each       = var.properties
   repository     = github_repository.this.name
   property_name  = each.key
-  property_type  = try(element(split(":", each.value), 1), "string")
-  property_value = [element(split(":", each.value), 0)]
+  property_type  = try(var.properties_types[each.key], "string")
+  property_value = flatten([each.value])
 }

@@ -39,3 +39,4 @@ terraform.rc
 
 # Ignore example keys_pem folder
 keys_pem
+corp
