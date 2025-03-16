@@ -1,13 +1,12 @@
 visibility: public
 
-features: [issues]
+has_issues: true
 
-pull_requests:
-  # allowed_merge_types: [rebase, squash, commit]
-  update_branch: true
-  commit_message:
-    commit: "PR_TITLE:BLANK"
-    squash: "COMMIT_OR_PR_TITLE:COMMIT_MESSAGES"
+allow_update_branch: true
+merge_commit_title: PR_TITLE
+merge_commit_message: BLANK
+squash_commit_title: COMMIT_OR_PR_TITLE
+squash_commit_message: COMMIT_MESSAGES
 
 web_commit_signoff_required: true
 

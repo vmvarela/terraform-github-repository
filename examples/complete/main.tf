@@ -1,13 +1,15 @@
 module "github" {
-  for_each                    = { for k, v in local.repositories : (try(v.alias, null) != null ? v.alias : k) => v }
-  source                      = "../../"
-  name                        = each.key
-  deploy_keys_path            = "./keys_pem"
-  description                 = try(each.value.description, try(local.defaults.description, null))
-  visibility                  = try(each.value.visibility, try(local.defaults.visibility, null))
-  homepage_url                = try(each.value.homepage_url, try(local.defaults.homepage_url, null))
-  features                    = try(each.value.features, try(local.defaults.features, null))
-  pull_requests               = try(each.value.pull_requests, try(local.defaults.pull_requests, null))
+  for_each         = { for k, v in local.repositories : (try(v.alias, null) != null ? v.alias : k) => v }
+  source           = "../../"
+  name             = each.key
+  deploy_keys_path = "./keys_pem"
+  description      = try(each.value.description, try(local.defaults.description, null))
+  visibility       = try(each.value.visibility, try(local.defaults.visibility, null))
+  homepage_url     = try(each.value.homepage_url, try(local.defaults.homepage_url, null))
+  #features         = try(each.value.features, try(local.defaults.features, null))
+  has_issues = try(each.value.has_issues, try(local.defaults.has_issues, null))
+  has_wiki   = try(each.value.has_wiki, try(local.defaults.has_wiki, null))
+  #pull_requests               = try(each.value.pull_requests, try(local.defaults.pull_requests, null))
   security                    = try(each.value.security, try(local.defaults.security, null))
   is_template                 = try(each.value.is_template, try(local.defaults.is_template, null))
   web_commit_signoff_required = try(each.value.web_commit_signoff_required, try(local.defaults.web_commit_signoff_required, null))
