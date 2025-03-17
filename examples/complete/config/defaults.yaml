@@ -26,14 +26,12 @@ rulesets:
       - hotfix/*
       - release/*
     bypass_roles: ["admin", "write"]
-    rules:
-      creation: true
+    forbidden_creation: true
   test-2:
     target: tag
     include:
       - ~ALL
-    rules:
-      deletion: true
+    forbidden_deletion: true
 
 webhooks:
   https://www.mycompany.com/webhook:
@@ -50,16 +48,14 @@ dependabot_secrets:
 
 environments:
   production:
-    deployment_branch_policy:
-      protected_branches: true
+    protected_branches: true
     variables:
       MYVAR: "myvalue"
   development:
     secrets:
       MYSECRET:
         plaintext_value: "123456-dev"
-    deployment_branch_policy:
-      custom_branch_policies:
-        - releases/*
+    custom_branch_policies:
+      - releases/*
 # properties:
 #   test-property: "value-999"

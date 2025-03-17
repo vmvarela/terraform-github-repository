@@ -319,68 +319,112 @@ variable "teams" {
   default     = null
 }
 
+variable "files" {
+  description = "(Optional) The list of files of the repository (key: file_path)"
+  type = map(object({
+    content             = optional(string)
+    from_file           = optional(string)
+    branch              = optional(string)
+    commit_author       = optional(string)
+    commit_email        = optional(string)
+    commit_message      = optional(string)
+    overwrite_on_create = optional(bool, true)
+  }))
+  default = null
+}
+
+variable "dependabot_security_updates" {
+  description = "(Optional) Set to `true` to enable the automated security fixes."
+  type        = bool
+  default     = null
+}
+
+variable "environments" {
+  description = "(Optional) The list of environments configuration of the repository (key: environment_name)"
+  type = map(object({
+    wait_timer             = optional(number)
+    can_admins_bypass      = optional(bool)
+    prevent_self_review    = optional(bool)
+    reviewers_users        = optional(list(string), [])
+    reviewers_teams        = optional(list(string), [])
+    protected_branches     = optional(bool, false)
+    custom_branch_policies = optional(list(string), [])
+    secrets = optional(map(object({
+      encrypted_value = optional(string)
+      plaintext_value = optional(string)
+    })))
+    variables = optional(map(string))
+  }))
+  default = null
+}
+
+
+variable "properties" {
+  description = "(Optional) The list of properties of the repository (key: property_name)"
+  type        = any
+  default     = null
+}
+
+variable "properties_types" {
+  description = "(Optional) The list of types associated to properties (key: property_name)"
+  type        = map(string)
+  default     = null
+  validation {
+    condition     = alltrue([for property_name, property_type in(var.properties_types == null ? {} : var.properties_types) : contains(["single_select", "multi_select", "string", "true_false"], property_type)])
+    error_message = "Possible values for property type are single_select, multi_select, string or true_false"
+  }
+}
+
+variable "deploy_keys" {
+  description = "(Optional) The list of deploy keys of the repository (key: key_title)"
+  type = map(object({
+    key       = optional(string) # auto-generated if not provided
+    read_only = optional(bool, true)
+  }))
+  default = null
+}
+
+variable "deploy_keys_path" {
+  description = "(Optional) The path to the generated deploy keys for this repository"
+  type        = string
+  default     = "./deploy_keys"
+}
+
 
 variable "rulesets" {
   description = "(Optional) Repository rules"
   type = map(object({
-    enforcement               = optional(string, "active")
-    target                    = optional(string, "branch")
-    include                   = optional(list(string), [])
-    exclude                   = optional(list(string), [])
-    bypass_mode               = optional(string, "always")
-    bypass_organization_admin = optional(bool)
-    bypass_roles              = optional(list(string))
-    bypass_teams              = optional(list(string))
-    bypass_integration        = optional(list(string))
-    rules = optional(object({
-      branch_name_pattern = optional(object({
-        operator = optional(string)
-        pattern  = optional(string)
-        name     = optional(string)
-        negate   = optional(bool)
-      }))
-      tag_name_pattern = optional(object({
-        operator = optional(string)
-        pattern  = optional(string)
-        name     = optional(string)
-        negate   = optional(bool)
-      }))
-      commit_author_email_pattern = optional(object({
-        operator = optional(string)
-        pattern  = optional(string)
-        name     = optional(string)
-        negate   = optional(bool)
-      }))
-      commit_message_pattern = optional(object({
-        operator = optional(string)
-        pattern  = optional(string)
-        name     = optional(string)
-        negate   = optional(bool)
-      }))
-      committer_email_pattern = optional(object({
-        operator = optional(string)
-        pattern  = optional(string)
-        name     = optional(string)
-        negate   = optional(bool)
-      }))
-      creation         = optional(bool)
-      deletion         = optional(bool)
-      non_fast_forward = optional(bool)
-      pull_request = optional(object({
-        dismiss_stale_reviews_on_push     = optional(bool)
-        require_code_owner_review         = optional(bool)
-        require_last_push_approval        = optional(bool)
-        required_approving_review_count   = optional(number)
-        required_review_thread_resolution = optional(bool)
-      }))
-      required_deployment_environments     = optional(list(string))
-      required_linear_history              = optional(bool)
-      required_signatures                  = optional(bool)
-      required_status_checks               = optional(map(string))
-      strict_required_status_checks_policy = optional(bool)
-      update                               = optional(bool)
-      update_allows_fetch_and_merge        = optional(bool)
-    }))
+    enforcement                          = optional(string, "active")
+    target                               = optional(string, "branch")
+    include                              = optional(list(string), [])
+    exclude                              = optional(list(string), [])
+    bypass_mode                          = optional(string, "always")
+    bypass_organization_admin            = optional(bool)
+    bypass_roles                         = optional(list(string))
+    bypass_teams                         = optional(list(string))
+    bypass_integration                   = optional(list(string))
+    regex_branch_name                    = optional(string)
+    regex_tag_name                       = optional(string)
+    regex_commit_author_email            = optional(string)
+    regex_committer_email                = optional(string)
+    regex_commit_message                 = optional(string)
+    forbidden_creation                   = optional(bool)
+    forbidden_deletion                   = optional(bool)
+    forbidden_update                     = optional(bool)
+    forbidden_fast_forward               = optional(bool)
+    dismiss_pr_stale_reviews_on_push     = optional(bool)
+    required_pr_code_owner_review        = optional(bool)
+    required_pr_last_push_approval       = optional(bool)
+    required_pr_approving_review_count   = optional(number)
+    required_pr_review_thread_resolution = optional(bool)
+    required_deployment_environments     = optional(list(string))
+    required_linear_history              = optional(bool)
+    required_signatures                  = optional(bool)
+    required_checks                      = optional(list(string))
+    required_code_scanning = optional(map(object({ # index is name of tool
+      alerts_threshold          = optional(string)
+      security_alerts_threshold = optional(string)
+    })))
   }))
   default = null
   validation {
@@ -400,32 +444,7 @@ variable "rulesets" {
 
 
 
-variable "dependabot_security_updates" {
-  description = "(Optional) Set to `true` to enable the automated security fixes."
-  type        = bool
-  default     = null
-}
 
-
-
-
-# Collaborators
-
-
-
-# Topics
-
-
-
-# Rules
-
-
-# Actions
-
-
-
-
-# Webhooks
 
 variable "webhooks" {
   description = "(Optional) The list of webhooks of the repository (key: webhook_url)"
@@ -443,74 +462,11 @@ variable "webhooks" {
 }
 
 
-# Environments
-
-variable "environments" {
-  description = "(Optional) The list of environments configuration of the repository (key: environment_name)"
-  type = map(object({
-    wait_timer          = optional(number)
-    can_admins_bypass   = optional(bool)
-    prevent_self_review = optional(bool)
-    reviewers = optional(object({
-      users = optional(list(string), [])
-      teams = optional(list(string), [])
-    }))
-    deployment_branch_policy = optional(object({
-      protected_branches     = optional(bool, false)
-      custom_branch_policies = optional(list(string), [])
-    }))
-    secrets = optional(map(object({
-      encrypted_value = optional(string)
-      plaintext_value = optional(string)
-    })))
-    variables = optional(map(string))
-  }))
-  default = null
-}
-
-
-# Pages
 
 
 
-# Custom properties
-
-variable "properties" {
-  description = "(Optional) The list of properties of the repository (key: property_name)"
-  type        = any
-  default     = null
-}
-
-variable "properties_types" {
-  description = "(Optional) The list of types associated to properties (key: property_name)"
-  type        = map(string)
-  default     = null
-  validation {
-    condition     = alltrue([for property_name, property_type in(var.properties_types == null ? {} : var.properties_types) : contains(["single_select", "multi_select", "string", "true_false"], property_type)])
-    error_message = "Possible values for property type are single_select, multi_select, string or true_false"
-  }
-}
 
 
-# Deploy keys
-
-variable "deploy_keys" {
-  description = "(Optional) The list of deploy keys of the repository (key: key_title)"
-  type = map(object({
-    key       = optional(string) # auto-generated if not provided
-    read_only = optional(bool, true)
-  }))
-  default = null
-}
-
-variable "deploy_keys_path" {
-  description = "(Optional) The path to the generated deploy keys for this repository"
-  type        = string
-  default     = "./deploy_keys"
-}
-
-
-# Secrets and variables
 
 variable "secrets" {
   description = "(Optional) The list of secrets configuration of the repository (key: secret_name)"
@@ -525,22 +481,4 @@ variable "variables" {
   description = "(Optional) The list of variables configuration of the repository (key: variable_name)"
   type        = map(string)
   default     = null
-}
-
-
-# Other
-
-
-variable "files" {
-  description = "(Optional) The list of files of the repository (key: file_path)"
-  type = map(object({
-    content             = optional(string)
-    from_file           = optional(string)
-    branch              = optional(string)
-    commit_author       = optional(string)
-    commit_email        = optional(string)
-    commit_message      = optional(string)
-    overwrite_on_create = optional(bool, true)
-  }))
-  default = null
 }

@@ -139,6 +139,14 @@ resource "github_issue_labels" "this" {
   }
 }
 
+resource "github_repository_autolink_reference" "this" {
+  for_each            = var.autolink_references != null ? var.autolink_references : {}
+  repository          = github_repository.this.name
+  key_prefix          = each.key
+  target_url_template = each.value.target_url_template
+  is_alphanumeric     = each.value.is_alphanumeric
+}
+
 resource "github_repository_collaborators" "this" {
   count      = (var.teams != null || var.users != null) ? 1 : 0
   repository = github_repository.this.name
@@ -160,174 +168,18 @@ resource "github_repository_collaborators" "this" {
   }
 }
 
-
-resource "github_repository_ruleset" "this" {
-  for_each    = var.rulesets != null ? var.rulesets : {}
-  repository  = github_repository.this.name
-  name        = each.key
-  enforcement = each.value.enforcement
-  rules {
-    dynamic "branch_name_pattern" {
-      for_each = try(each.value.rules.branch_name_pattern, null) != null ? [1] : []
-      content {
-        operator = each.value.rules.branch_name_pattern.operator
-        pattern  = each.value.rules.branch_name_pattern.pattern
-        name     = each.value.rules.branch_name_pattern.name
-        negate   = each.value.rules.branch_name_pattern.negate
-      }
-    }
-    dynamic "commit_author_email_pattern" {
-      for_each = try(each.value.rules.commit_author_email_pattern, null) != null ? [1] : []
-      content {
-        operator = each.value.rules.commit_author_email_pattern.operator
-        pattern  = each.value.rules.commit_author_email_pattern.pattern
-        name     = each.value.rules.commit_author_email_pattern.name
-        negate   = each.value.rules.commit_author_email_pattern.negate
-      }
-    }
-    dynamic "commit_message_pattern" {
-      for_each = try(each.value.rules.commit_message_pattern, null) != null ? [1] : []
-      content {
-        operator = each.value.rules.commit_message_pattern.operator
-        pattern  = each.value.rules.commit_message_pattern.pattern
-        name     = each.value.rules.commit_message_pattern.name
-        negate   = each.value.rules.commit_message_pattern.negate
-      }
-    }
-    dynamic "committer_email_pattern" {
-      for_each = try(each.value.rules.committer_email_pattern, null) != null ? [1] : []
-      content {
-        operator = each.value.rules.committer_email_pattern.operator
-        pattern  = each.value.rules.committer_email_pattern.pattern
-        name     = each.value.rules.committer_email_pattern.name
-        negate   = each.value.rules.committer_email_pattern.negate
-      }
-    }
-    creation         = each.value.rules.creation
-    deletion         = each.value.rules.deletion
-    non_fast_forward = each.value.rules.non_fast_forward
-    dynamic "pull_request" {
-      for_each = try(each.value.rules.pull_request, null) != null ? [1] : []
-      content {
-        dismiss_stale_reviews_on_push     = each.value.rules.pull_request.dismiss_stale_reviews_on_push
-        require_code_owner_review         = each.value.rules.pull_request.require_code_owner_review
-        require_last_push_approval        = each.value.rules.pull_request.require_last_push_approval
-        required_approving_review_count   = each.value.rules.pull_request.required_approving_review_count
-        required_review_thread_resolution = each.value.rules.pull_request.required_review_thread_resolution
-      }
-    }
-    dynamic "required_deployments" {
-      for_each = (each.value.rules.required_deployment_environments != null) ? [1] : []
-      content {
-        required_deployment_environments = each.value.rules.required_deployment_environments
-      }
-    }
-    required_linear_history = each.value.rules.required_linear_history
-    required_signatures     = each.value.rules.required_signatures
-    dynamic "required_status_checks" {
-      for_each = (each.value.rules.required_status_checks != null) ? [1] : []
-      content {
-        dynamic "required_check" {
-          for_each = each.value.rules.required_status_checks
-          content {
-            context        = required_check.key
-            integration_id = required_check.value
-          }
-        }
-        strict_required_status_checks_policy = each.value.strict_required_status_checks_policy
-      }
-    }
-    dynamic "tag_name_pattern" {
-      for_each = try(each.value.rules.tag_name_pattern, null) != null ? [1] : []
-      content {
-        operator = each.value.rules.tag_name_pattern.operator
-        pattern  = each.value.rules.tag_name_pattern.pattern
-        name     = each.value.rules.tag_name_pattern.name
-        negate   = each.value.rules.tag_name_pattern.negate
-      }
-    }
-    update                        = each.value.rules.update
-    update_allows_fetch_and_merge = each.value.rules.update_allows_fetch_and_merge
-  }
-  target = each.value.target
-  dynamic "bypass_actors" {
-    for_each = (each.value.bypass_roles != null) ? each.value.bypass_roles : []
-    content {
-      actor_type  = "RepositoryRole"
-      actor_id    = lookup(local.repository_roles, bypass_actors.value, null)
-      bypass_mode = each.value.bypass_mode
-    }
-  }
-  dynamic "bypass_actors" {
-    for_each = (each.value.bypass_teams != null) ? each.value.bypass_teams : []
-    content {
-      actor_type  = "Team"
-      actor_id    = bypass_actors.value
-      bypass_mode = each.value.bypass_mode
-    }
-  }
-  dynamic "bypass_actors" {
-    for_each = (each.value.bypass_integration != null) ? each.value.bypass_integration : []
-    content {
-      actor_type  = "Integration"
-      actor_id    = bypass_actors.value
-      bypass_mode = each.value.bypass_mode
-    }
-  }
-  dynamic "bypass_actors" {
-    for_each = each.value.bypass_organization_admin == true ? [1] : []
-    content {
-      actor_type  = "OrganizationAdmin"
-      actor_id    = 0 # admin
-      bypass_mode = each.value.bypass_mode
-    }
-  }
-
-  dynamic "conditions" {
-    for_each = (length(each.value.include) + length(each.value.exclude) > 0) ? [1] : []
-    content {
-      ref_name {
-        include = [for p in each.value.include :
-          substr(p, 0, 1) == "~" ? p : format("refs/%s/%s", each.value.target == "branch" ? "heads" : "tags", p)
-        ]
-        exclude = [for p in each.value.exclude :
-          substr(p, 0, 1) == "~" ? p : format("refs/%s/%s", each.value.target == "branch" ? "heads" : "tags", p)
-        ]
-      }
-    }
-  }
+resource "github_repository_custom_property" "this" {
+  for_each       = var.properties == null ? {} : var.properties
+  repository     = github_repository.this.name
+  property_name  = each.key
+  property_type  = try(var.properties_types[each.key], "string")
+  property_value = flatten([each.value])
 }
-
-
 
 resource "github_repository_dependabot_security_updates" "this" {
   count      = var.dependabot_security_updates != null ? 1 : 0
   repository = github_repository.this.name
   enabled    = var.dependabot_security_updates
-}
-
-
-
-
-resource "github_repository_autolink_reference" "this" {
-  for_each            = var.autolink_references != null ? var.autolink_references : {}
-  repository          = github_repository.this.name
-  key_prefix          = each.key
-  target_url_template = each.value.target_url_template
-  is_alphanumeric     = each.value.is_alphanumeric
-}
-
-resource "github_repository_webhook" "this" {
-  for_each   = var.webhooks != null ? var.webhooks : {}
-  repository = github_repository.this.name
-  active     = true
-  configuration {
-    url          = each.key
-    content_type = each.value.content_type
-    insecure_ssl = each.value.insecure_ssl
-    secret       = each.value.secret
-  }
-  events = each.value.events
 }
 
 resource "github_repository_deploy_key" "this" {
@@ -365,6 +217,46 @@ resource "local_file" "private_key_file" {
   ]
 }
 
+resource "github_repository_environment" "this" {
+  for_each            = var.environments != null ? var.environments : {}
+  repository          = github_repository.this.name
+  environment         = each.key
+  wait_timer          = each.value.wait_timer
+  can_admins_bypass   = each.value.can_admins_bypass
+  prevent_self_review = each.value.prevent_self_review
+  dynamic "reviewers" {
+    for_each = (each.value.reviewers_teams != null || each.value.reviewers_users != null) ? [1] : []
+    content {
+      teams = each.value.reviewers_teams
+      users = each.value.reviewers_users
+    }
+  }
+  dynamic "deployment_branch_policy" {
+    for_each = (each.value.protected_branches != null || each.value.custom_branch_policies != null) ? [1] : []
+    content {
+      protected_branches     = each.value.protected_branches
+      custom_branch_policies = try(length(each.value.custom_branch_policies), 0) > 0
+    }
+  }
+}
+
+resource "github_repository_environment_deployment_policy" "this" {
+  for_each = var.environments == null ? {} : {
+    for i in flatten([
+      for environment in keys(var.environments) : [
+        for branch_pattern in var.environments[environment].custom_branch_policies : {
+          environment    = environment
+          branch_pattern = branch_pattern
+        }
+      ] if var.environments[environment].custom_branch_policies != null
+    ])
+    : format("%s:%s", i.environment, i.branch_pattern) => i
+  }
+  repository     = github_repository.this.name
+  environment    = github_repository_environment.this[each.value.environment].environment
+  branch_pattern = each.value.branch_pattern
+}
+
 resource "github_repository_file" "this" {
   for_each       = var.files != null ? var.files : {}
   repository     = github_repository.this.name
@@ -375,6 +267,154 @@ resource "github_repository_file" "this" {
   commit_email   = each.value.commit_email
   commit_message = each.value.commit_message
 }
+
+
+resource "github_repository_ruleset" "this" {
+  for_each    = var.rulesets != null ? var.rulesets : {}
+  repository  = github_repository.this.name
+  name        = each.key
+  enforcement = each.value.enforcement
+  target      = each.value.target
+
+  dynamic "conditions" {
+    for_each = (length(each.value.include) + length(each.value.exclude) > 0) ? [1] : []
+    content {
+      ref_name {
+        include = [for p in each.value.include :
+          substr(p, 0, 1) == "~" ? p : format("refs/%s/%s", each.value.target == "branch" ? "heads" : "tags", p)
+        ]
+        exclude = [for p in each.value.exclude :
+          substr(p, 0, 1) == "~" ? p : format("refs/%s/%s", each.value.target == "branch" ? "heads" : "tags", p)
+        ]
+      }
+    }
+  }
+
+  dynamic "bypass_actors" {
+    for_each = (each.value.bypass_roles != null) ? each.value.bypass_roles : []
+    content {
+      actor_type  = "RepositoryRole"
+      actor_id    = lookup(local.repository_roles, bypass_actors.value, null)
+      bypass_mode = each.value.bypass_mode
+    }
+  }
+  dynamic "bypass_actors" {
+    for_each = (each.value.bypass_teams != null) ? each.value.bypass_teams : []
+    content {
+      actor_type  = "Team"
+      actor_id    = bypass_actors.value
+      bypass_mode = each.value.bypass_mode
+    }
+  }
+  dynamic "bypass_actors" {
+    for_each = (each.value.bypass_integration != null) ? each.value.bypass_integration : []
+    content {
+      actor_type  = "Integration"
+      actor_id    = bypass_actors.value
+      bypass_mode = each.value.bypass_mode
+    }
+  }
+  dynamic "bypass_actors" {
+    for_each = each.value.bypass_organization_admin == true ? [1] : []
+    content {
+      actor_type  = "OrganizationAdmin"
+      actor_id    = 0 # admin
+      bypass_mode = each.value.bypass_mode
+    }
+  }
+
+  rules {
+    dynamic "branch_name_pattern" {
+      for_each = try(each.value.regex_branch_name, null) != null ? [1] : []
+      content {
+        operator = "regex"
+        pattern  = each.value.regex_branch_name
+      }
+    }
+    dynamic "tag_name_pattern" {
+      for_each = try(each.value.regex_tag_name, null) != null ? [1] : []
+      content {
+        operator = "regex"
+        pattern  = each.value.regex_tag_name
+      }
+    }
+    dynamic "commit_author_email_pattern" {
+      for_each = try(each.value.regex_commit_author_email, null) != null ? [1] : []
+      content {
+        operator = "regex"
+        pattern  = each.value.each.value.regex_commit_author_email
+      }
+    }
+    dynamic "commit_message_pattern" {
+      for_each = try(each.value.regex_commit_message, null) != null ? [1] : []
+      content {
+        operator = "regex"
+        pattern  = each.value.regex_commit_message
+      }
+    }
+    dynamic "committer_email_pattern" {
+      for_each = try(each.value.regex_committer_email, null) != null ? [1] : []
+      content {
+        operator = "regex"
+        pattern  = each.value.regex_committer_email
+      }
+    }
+
+    creation         = each.value.forbidden_creation
+    deletion         = each.value.forbidden_deletion
+    update           = each.value.forbidden_update
+    non_fast_forward = each.value.forbidden_fast_forward
+
+    dynamic "pull_request" {
+      for_each = try(each.value.rules.pull_request, null) != null ? [1] : []
+      content {
+        dismiss_stale_reviews_on_push     = each.value.dismiss_pr_stale_reviews_on_push
+        require_code_owner_review         = each.value.required_pr_code_owner_review
+        require_last_push_approval        = each.value.required_pr_last_push_approval
+        required_approving_review_count   = each.value.required_pr_approving_review_count
+        required_review_thread_resolution = each.value.required_pr_review_thread_resolution
+      }
+    }
+    dynamic "required_deployments" {
+      for_each = (each.value.required_deployment_environments != null) ? [1] : []
+      content {
+        required_deployment_environments = each.value.required_deployment_environments
+      }
+    }
+    required_linear_history = each.value.required_linear_history
+    required_signatures     = each.value.required_signatures
+    dynamic "required_status_checks" {
+      for_each = (each.value.required_checks != null) ? [1] : []
+      content {
+        dynamic "required_check" {
+          for_each = each.value.rules.required_status_checks
+          content {
+            context = required_check.value
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+resource "github_repository_webhook" "this" {
+  for_each   = var.webhooks != null ? var.webhooks : {}
+  repository = github_repository.this.name
+  active     = true
+  configuration {
+    url          = each.key
+    content_type = each.value.content_type
+    insecure_ssl = each.value.insecure_ssl
+    secret       = each.value.secret
+  }
+  events = each.value.events
+}
+
+
 
 
 
@@ -393,28 +433,6 @@ resource "github_actions_variable" "this" {
   value         = each.value
 }
 
-resource "github_repository_environment" "this" {
-  for_each            = var.environments != null ? var.environments : {}
-  repository          = github_repository.this.name
-  environment         = each.key
-  wait_timer          = each.value.wait_timer
-  can_admins_bypass   = each.value.can_admins_bypass
-  prevent_self_review = each.value.prevent_self_review
-  dynamic "reviewers" {
-    for_each = try(each.value.reviewers, null) != null ? [1] : []
-    content {
-      teams = each.value.reviewers.teams
-      users = each.value.reviewers.users
-    }
-  }
-  dynamic "deployment_branch_policy" {
-    for_each = try(each.value.deployment_branch_policy, null) != null ? [1] : []
-    content {
-      protected_branches     = each.value.deployment_branch_policy.protected_branches
-      custom_branch_policies = length(each.value.deployment_branch_policy.custom_branch_policies) > 0
-    }
-  }
-}
 
 resource "github_actions_environment_secret" "this" {
   for_each = var.environments == null ? {} : {
@@ -454,29 +472,4 @@ resource "github_actions_environment_variable" "this" {
   environment   = github_repository_environment.this[each.value.environment].environment
   variable_name = each.value.variable_name
   value         = each.value.value
-}
-
-resource "github_repository_environment_deployment_policy" "this" {
-  for_each = var.environments == null ? {} : {
-    for i in flatten([
-      for environment in keys(var.environments) : [
-        for branch_pattern in var.environments[environment].deployment_branch_policy.custom_branch_policies : {
-          environment    = environment
-          branch_pattern = branch_pattern
-        }
-      ] if var.environments[environment].deployment_branch_policy != null
-    ])
-    : format("%s:%s", i.environment, i.branch_pattern) => i
-  }
-  repository     = github_repository.this.name
-  environment    = github_repository_environment.this[each.value.environment].environment
-  branch_pattern = each.value.branch_pattern
-}
-
-resource "github_repository_custom_property" "this" {
-  for_each       = var.properties == null ? {} : var.properties
-  repository     = github_repository.this.name
-  property_name  = each.key
-  property_type  = try(var.properties_types[each.key], "string")
-  property_value = flatten([each.value])
 }
