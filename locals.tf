@@ -1,5 +1,5 @@
 locals {
-  description                     = (var.description != null) ? var.description : (var.alias != null) ? format("aka %s", var.alias) : null
+  alias                           = var.alias == null ? var.name : var.alias
   visibility                      = (var.visibility == null && var.private != null) ? (var.private ? "private" : "public") : var.visibility
   allowed_scanning                = (var.visibility == "public" || var.advanced_security == true)
   secret_scanning                 = var.secret_scanning == true && local.allowed_scanning

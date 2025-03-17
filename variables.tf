@@ -22,7 +22,7 @@ variable "homepage_url" {
 }
 
 variable "private" {
-  description = "Set to `true` to create a private repository. Repositories are created as public (e.g. open source) by default."
+  description = "(Optional) Set to `true` to create a private repository. Repositories are created as public (e.g. open source) by default."
   type        = bool
   default     = null
 }
@@ -62,7 +62,7 @@ variable "has_wiki" {
 }
 
 variable "is_template" {
-  description = "(Optional) Set to true if this is a template repository"
+  description = "(Optional) Set to `true` if this is a template repository"
   type        = bool
   default     = null
 }
@@ -74,19 +74,19 @@ variable "allow_merge_commit" {
 }
 
 variable "allow_squash_merge" {
-  description = "(Optional) Set to false to disable squash merges on the repository."
+  description = "(Optional) Set to `false` to disable squash merges on the repository."
   type        = bool
   default     = null
 }
 
 variable "allow_rebase_merge" {
-  description = "(Optional) Set to false to disable rebase merges on the repository."
+  description = "(Optional) Set to `false` to disable rebase merges on the repository."
   type        = bool
   default     = null
 }
 
 variable "allow_auto_merge" {
-  description = "(Optional) Set to true to allow auto-merging pull requests on the repository."
+  description = "(Optional) Set to `true` to allow auto-merging pull requests on the repository."
   type        = bool
   default     = null
 }
@@ -112,7 +112,7 @@ variable "squash_merge_commit_message" {
 }
 
 variable "merge_commit_title" {
-  description = "Can be `PR_TITLE` or `MERGE_MESSAGE` for a default merge commit title. Applicable only if `allow_merge_commit` is `true`."
+  description = "(Optional) Can be `PR_TITLE` or `MERGE_MESSAGE` for a default merge commit title. Applicable only if `allow_merge_commit` is `true`."
   type        = string
   default     = null
   validation {
@@ -186,7 +186,7 @@ variable "topics" {
 }
 
 variable "vulnerability_alerts" {
-  description = "(Optional) - Set to `true` to enable security alerts for vulnerable dependencies. Enabling requires alerts to be enabled on the owner level. (Note for importing: GitHub enables the alerts on public repos but disables them on private repos by default.) See [GitHub Documentation](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository#allow_squash_merge-1:~:text=(Optional)%20%2D%20Set%20to,in%20those%20settings.) for details. Note that vulnerability alerts have not been successfully tested on any GitHub Enterprise instance and may be unavailable in those settings."
+  description = "(Optional) - Set to `true` to enable security alerts for vulnerable dependencies. Enabling requires alerts to be enabled on the owner level. See [GitHub Documentation](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository#allow_squash_merge-1:~:text=(Optional)%20%2D%20Set%20to,in%20those%20settings.) for details. Note that vulnerability alerts have not been successfully tested on any GitHub Enterprise instance and may be unavailable in those settings."
   type        = bool
   default     = null
 }
@@ -248,6 +248,38 @@ variable "template_include_all_branches" {
   default     = null
 }
 
+variable "actions_access_level" {
+  description = "(Optional) The access level for the repository. Must be one of `none`, `user`, `organization`, or `enterprise`. Default: `none`"
+  type        = string
+  default     = null
+  validation {
+    condition     = var.actions_access_level == null || can(regex("^none$|^user$|^organization$|^enterprise$", var.actions_access_level))
+    error_message = "Only none, user, organization and enterprise values are allowed"
+  }
+}
+
+variable "actions_permissions" {
+  description = "(Optional) The list of Github Actions permissions configuration of the repository: `allowed_actions` - (Optional) The permissions policy that controls the actions that are allowed to run. Can be one of: `all`, `local_only`, or `selected`.; `enabled` - (Optional) Should GitHub actions be enabled on this repository?; `github_owned_allowed` - (Optional) Whether GitHub-owned actions are allowed in the repository.; `patterns_allowed` - (Optional) Specifies a list of string-matching patterns to allow specific action(s). Wildcards, tags, and SHAs are allowed. For example, monalisa/octocat@, monalisa/octocat@v2, monalisa/.; `verified_allowed` -  (Optional) Whether actions in GitHub Marketplace from verified creators are allowed. Set to true to allow all GitHub Marketplace actions by verified creators."
+  type = object({
+    enabled              = optional(bool)
+    allowed_actions      = optional(string)
+    github_owned_allowed = optional(bool)
+    patterns_allowed     = optional(list(string))
+    verified_allowed     = optional(bool)
+  })
+  default = null
+  validation {
+    condition     = var.actions_permissions == null || try(var.actions_permissions.allowed_actions, null) == null || can(regex("^all$|^local_only$|^selected$", var.actions_permissions.allowed_actions))
+    error_message = "permissions.allowed_actions: Only all, local_only and selected values are allowed"
+  }
+}
+
+variable "branches" {
+  description = "(Optional) The list of branches to create (map of name and source branch)"
+  type        = map(string)
+  default     = null
+}
+
 variable "dependabot_security_updates" {
   description = "(Optional) Set to `true` to enable the automated security fixes."
   type        = bool
@@ -270,13 +302,13 @@ variable "issue_labels" {
 variable "users" {
   description = "(Optional) The list of collaborators (users) of the repository"
   type        = map(string)
-  default     = {}
+  default     = null
 }
 
 variable "teams" {
   description = "(Optional) The list of collaborators (teams) of the repository"
   type        = map(string)
-  default     = {}
+  default     = null
 }
 
 
@@ -361,33 +393,7 @@ variable "rulesets" {
 
 # Actions
 
-variable "actions_permissions" {
-  description = "(Optional) The list of permissions configuration of the repository"
-  type = object({
-    enabled         = optional(bool)
-    allowed_actions = optional(string)
-    allowed_actions_config = optional(object({
-      github_owned_allowed = optional(bool)
-      patterns_allowed     = optional(list(string))
-      verified_allowed     = optional(bool)
-    }))
-  })
-  default = null
-  validation {
-    condition     = var.actions_permissions == null || try(var.actions_permissions.allowed_actions, null) == null || can(regex("^all$|^local_only$|^selected$", var.actions_permissions.allowed_actions))
-    error_message = "permissions.allowed_actions: Only all, local_only and selected values are allowed"
-  }
-}
 
-variable "actions_access_level" {
-  description = "(Optional) The access level for the repository. Must be one of none, user, organization, or enterprise. Default: none"
-  type        = string
-  default     = null
-  validation {
-    condition     = var.actions_access_level == null || can(regex("^none$|^user$|^organization$|^enterprise$", var.actions_access_level))
-    error_message = "Only none, user, organization and enterprise values are allowed"
-  }
-}
 
 
 # Webhooks

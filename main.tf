@@ -1,6 +1,6 @@
 resource "github_repository" "this" {
   name                                    = var.name
-  description                             = local.description
+  description                             = var.description
   homepage_url                            = var.homepage_url
   private                                 = var.private
   visibility                              = local.visibility
@@ -76,6 +76,35 @@ resource "github_repository" "this" {
       include_all_branches = var.template_include_all_branches
     }
   }
+}
+
+resource "github_actions_repository_access_level" "this" {
+  count        = var.actions_access_level != null ? 1 : 0
+  repository   = github_repository.this.name
+  access_level = var.actions_access_level
+}
+
+resource "github_actions_repository_permissions" "this" {
+  count           = var.actions_permissions != null ? 1 : 0
+  repository      = github_repository.this.name
+  enabled         = var.actions_permissions.enabled
+  allowed_actions = var.actions_permissions.allowed_actions
+  dynamic "allowed_actions_config" {
+    for_each = var.actions_permissions.allowed_actions == "selected" ? [1] : []
+    content {
+      github_owned_allowed = try(var.actions_permissions.github_owned_allowed, null)
+      patterns_allowed     = try(var.actions_permissions.patterns_allowed, null)
+      verified_allowed     = try(var.actions_permissions.verified_allowed, null)
+    }
+  }
+}
+
+resource "github_branch" "this" {
+  for_each      = var.branches == null ? {} : var.branches
+  repository    = github_repository.this.name
+  branch        = each.key
+  source_branch = !try(startswith(each.value, "sha:"), false) ? each.value : null
+  source_sha    = try(startswith(each.value, "sha:"), false) ? substr(each.value, 4, length(each.value) - 4) : null
 }
 
 resource "github_repository_dependabot_security_updates" "this" {
@@ -307,26 +336,7 @@ resource "github_repository_file" "this" {
   commit_message = each.value.commit_message
 }
 
-resource "github_actions_repository_access_level" "this" {
-  count        = var.actions_access_level != null ? 1 : 0
-  repository   = github_repository.this.name
-  access_level = var.actions_access_level
-}
 
-resource "github_actions_repository_permissions" "this" {
-  count           = var.actions_permissions != null ? 1 : 0
-  repository      = github_repository.this.name
-  enabled         = var.actions_permissions.enabled
-  allowed_actions = var.actions_permissions.allowed_actions
-  dynamic "allowed_actions_config" {
-    for_each = var.actions_permissions.allowed_actions == "selected" ? [1] : []
-    content {
-      github_owned_allowed = try(var.actions_permissions.allowed_actions_config.github_owned_allowed, null)
-      patterns_allowed     = try(var.actions_permissions.allowed_actions_config.patterns_allowed, null)
-      verified_allowed     = try(var.actions_permissions.allowed_actions_config.verified_allowed, null)
-    }
-  }
-}
 
 resource "github_actions_secret" "this" {
   for_each        = var.secrets != null ? var.secrets : {}
