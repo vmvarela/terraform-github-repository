@@ -43,6 +43,10 @@ secrets:
   MISECRETO:
     plaintext_value: "123456"
 
+dependabot_secrets:
+  MYSECRET:
+    plaintext_value: "123456"
+
 environments:
   production:
     deployment_branch_policy:

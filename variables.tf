@@ -280,6 +280,15 @@ variable "branches" {
   default     = null
 }
 
+variable "dependabot_secrets" {
+  description = "(Optional) The list of secrets configuration of the repository (key: `secret_name`, arguments: `encrypted_value` or `plaintext_value`)"
+  type = map(object({
+    encrypted_value = optional(string)
+    plaintext_value = optional(string)
+  }))
+  default = null
+}
+
 variable "dependabot_security_updates" {
   description = "(Optional) Set to `true` to enable the automated security fixes."
   type        = bool

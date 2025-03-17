@@ -38,6 +38,9 @@ module "github" {
   secret_scanning_push_protection         = try(each.value.secret_scanning_push_protection, try(local.defaults.secret_scanning_push_protection, null))
   template                                = try(each.value.template, try(local.defaults.template, null))
   template_include_all_branches           = try(each.value.template_include_all_branches, try(local.defaults.template_include_all_branches, null))
+  branches                                = try(each.value.branches, try(local.defaults.branches, null))
+  dependabot_secrets                      = try(each.value.dependabot_secrets, try(local.defaults.dependabot_secrets, null))
+
 
   teams                = try(each.value.teams, try(local.defaults.teams, null))
   users                = try(each.value.users, try(local.defaults.users, null))
