@@ -78,6 +78,16 @@ resource "github_repository" "this" {
   }
 }
 
+# The default branch is considered the “base” branch in your repository,
+# against which all pull requests and code commits are automatically made,
+# unless you specify a different branch.
+resource "github_branch_default" "this" {
+  count      = var.default_branch != null ? 1 : 0
+  repository = github_repository.this.name
+  branch     = var.default_branch
+}
+
+
 resource "github_actions_repository_access_level" "this" {
   count        = var.actions_access_level != null ? 1 : 0
   repository   = github_repository.this.name
@@ -115,20 +125,18 @@ resource "github_dependabot_secret" "this" {
   plaintext_value = each.value.plaintext_value
 }
 
-
-resource "github_repository_dependabot_security_updates" "this" {
-  count      = var.dependabot_security_updates != null ? 1 : 0
+resource "github_issue_labels" "this" {
+  count      = var.issue_labels != null ? 1 : 0
   repository = github_repository.this.name
-  enabled    = var.dependabot_security_updates
-}
 
-# The default branch is considered the “base” branch in your repository,
-# against which all pull requests and code commits are automatically made,
-# unless you specify a different branch.
-resource "github_branch_default" "this" {
-  count      = var.default_branch != null ? 1 : 0
-  repository = github_repository.this.name
-  branch     = var.default_branch
+  dynamic "label" {
+    for_each = var.issue_labels
+    content {
+      name        = label.key
+      color       = label.value.color
+      description = label.value.description
+    }
+  }
 }
 
 resource "github_repository_collaborators" "this" {
@@ -151,6 +159,7 @@ resource "github_repository_collaborators" "this" {
     }
   }
 }
+
 
 resource "github_repository_ruleset" "this" {
   for_each    = var.rulesets != null ? var.rulesets : {}
@@ -242,13 +251,38 @@ resource "github_repository_ruleset" "this" {
   }
   target = each.value.target
   dynamic "bypass_actors" {
-    for_each = (each.value.bypass_actors != null) ? each.value.bypass_actors : {}
+    for_each = (each.value.bypass_roles != null) ? each.value.bypass_roles : []
     content {
-      actor_id    = bypass_actors.key
-      actor_type  = bypass_actors.value.actor_type
-      bypass_mode = bypass_actors.value.bypass_mode
+      actor_type  = "RepositoryRole"
+      actor_id    = lookup(local.repository_roles, bypass_actors.value, null)
+      bypass_mode = each.value.bypass_mode
     }
   }
+  dynamic "bypass_actors" {
+    for_each = (each.value.bypass_teams != null) ? each.value.bypass_teams : []
+    content {
+      actor_type  = "Team"
+      actor_id    = bypass_actors.value
+      bypass_mode = each.value.bypass_mode
+    }
+  }
+  dynamic "bypass_actors" {
+    for_each = (each.value.bypass_integration != null) ? each.value.bypass_integration : []
+    content {
+      actor_type  = "Integration"
+      actor_id    = bypass_actors.value
+      bypass_mode = each.value.bypass_mode
+    }
+  }
+  dynamic "bypass_actors" {
+    for_each = each.value.bypass_organization_admin == true ? [1] : []
+    content {
+      actor_type  = "OrganizationAdmin"
+      actor_id    = 0 # admin
+      bypass_mode = each.value.bypass_mode
+    }
+  }
+
   dynamic "conditions" {
     for_each = (length(each.value.include) + length(each.value.exclude) > 0) ? [1] : []
     content {
@@ -264,19 +298,16 @@ resource "github_repository_ruleset" "this" {
   }
 }
 
-resource "github_issue_labels" "this" {
-  count      = var.issue_labels != null ? 1 : 0
-  repository = github_repository.this.name
 
-  dynamic "label" {
-    for_each = var.issue_labels
-    content {
-      name        = label.key
-      color       = label.value.color
-      description = label.value.description
-    }
-  }
+
+resource "github_repository_dependabot_security_updates" "this" {
+  count      = var.dependabot_security_updates != null ? 1 : 0
+  repository = github_repository.this.name
+  enabled    = var.dependabot_security_updates
 }
+
+
+
 
 resource "github_repository_autolink_reference" "this" {
   for_each            = var.autolink_references != null ? var.autolink_references : {}

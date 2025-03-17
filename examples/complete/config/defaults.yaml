@@ -25,6 +25,7 @@ rulesets:
       - feature/*
       - hotfix/*
       - release/*
+    bypass_roles: ["admin", "write"]
     rules:
       creation: true
   test-2:

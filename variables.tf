@@ -289,24 +289,23 @@ variable "dependabot_secrets" {
   default = null
 }
 
-variable "dependabot_security_updates" {
-  description = "(Optional) Set to `true` to enable the automated security fixes."
-  type        = bool
-  default     = null
-}
-
 variable "issue_labels" {
-  description = "(Optional) The list of issue labels of the repository (key: label_name)"
+  description = "(Optional) The list of issue labels of the repository (key: `label_name`, arguments: `color` and `description`)"
   type = map(object({
-    color       = string
+    color       = optional(string)
     description = optional(string)
   }))
   default = null
 }
 
-
-
-# Collaborators
+variable "autolink_references" {
+  description = "(Optional) The list of autolink references of the repository (key: key_prefix)"
+  type = map(object({
+    target_url_template = string
+    is_alphanumeric     = optional(bool)
+  }))
+  default = {}
+}
 
 variable "users" {
   description = "(Optional) The list of collaborators (users) of the repository"
@@ -321,23 +320,18 @@ variable "teams" {
 }
 
 
-# Topics
-
-
-
-# Rules
-
 variable "rulesets" {
   description = "(Optional) Repository rules"
   type = map(object({
-    enforcement = optional(string, "active")
-    target      = optional(string, "branch")
-    include     = optional(list(string), [])
-    exclude     = optional(list(string), [])
-    bypass_actors = optional(map(object({
-      actor_type  = string
-      bypass_mode = string
-    })))
+    enforcement               = optional(string, "active")
+    target                    = optional(string, "branch")
+    include                   = optional(list(string), [])
+    exclude                   = optional(list(string), [])
+    bypass_mode               = optional(string, "always")
+    bypass_organization_admin = optional(bool)
+    bypass_roles              = optional(list(string))
+    bypass_teams              = optional(list(string))
+    bypass_integration        = optional(list(string))
     rules = optional(object({
       branch_name_pattern = optional(object({
         operator = optional(string)
@@ -388,7 +382,7 @@ variable "rulesets" {
       update_allows_fetch_and_merge        = optional(bool)
     }))
   }))
-  default = {}
+  default = null
   validation {
     condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["active", "evaluate", "disabled"], config.enforcement)])
     error_message = "Possible values for enforcement are active, evaluate or disabled."
@@ -397,7 +391,33 @@ variable "rulesets" {
     condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["tag", "branch"], config.target)])
     error_message = "Possible values for ruleset target are tag or branch"
   }
+  validation {
+    condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["always", "pull_request"], config.bypass_mode)])
+    error_message = "Possible values for ruleset bypass_mode are always or pull_request"
+  }
+
 }
+
+
+
+variable "dependabot_security_updates" {
+  description = "(Optional) Set to `true` to enable the automated security fixes."
+  type        = bool
+  default     = null
+}
+
+
+
+
+# Collaborators
+
+
+
+# Topics
+
+
+
+# Rules
 
 
 # Actions
@@ -510,14 +530,6 @@ variable "variables" {
 
 # Other
 
-variable "autolink_references" {
-  description = "(Optional) The list of autolink references of the repository (key: key_prefix)"
-  type = map(object({
-    target_url_template = string
-    is_alphanumeric     = optional(bool)
-  }))
-  default = {}
-}
 
 variable "files" {
   description = "(Optional) The list of files of the repository (key: file_path)"
