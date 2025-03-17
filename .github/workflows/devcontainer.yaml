@@ -2,16 +2,12 @@ name: Dev-Container
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - master
-    paths:
-      - .devcontainer/**/*
-  push:
-    branches:
-      - master
-    paths:
-      - .devcontainer/**/*
+    inputs:
+      push:
+        description: 'Push the container'
+        required: true
+        default: 'false'
+        type: boolean
 
 jobs:
   docker:
@@ -37,5 +33,5 @@ jobs:
         run: docker build --tag ghcr.io/${{ github.repository }}:devcontainer .devcontainer
 
       - name: Push
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ inputs.push == true }}
         run: docker push ghcr.io/${{ github.repository }}:devcontainer
