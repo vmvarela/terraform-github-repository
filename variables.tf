@@ -347,8 +347,8 @@ variable "environments" {
     prevent_self_review    = optional(bool)
     reviewers_users        = optional(list(string), [])
     reviewers_teams        = optional(list(string), [])
-    protected_branches     = optional(bool, false)
-    custom_branch_policies = optional(list(string), [])
+    protected_branches     = optional(bool)
+    custom_branch_policies = optional(list(string))
     secrets = optional(map(object({
       encrypted_value = optional(string)
       plaintext_value = optional(string)
@@ -439,7 +439,6 @@ variable "rulesets" {
     condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["always", "pull_request"], config.bypass_mode)])
     error_message = "Possible values for ruleset bypass_mode are always or pull_request"
   }
-
 }
 
 
