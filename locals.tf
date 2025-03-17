@@ -13,4 +13,13 @@ locals {
     "write"    = 4
     "admin"    = 5
   }
+
+  properties = var.properties == null ? {} : { for i in [
+    for n, a in var.properties : {
+      property = n
+      type     = try(var.properties_types[n], "string")
+      value    = flatten([a])
+    }
+    ] : i.property => i
+  }
 }

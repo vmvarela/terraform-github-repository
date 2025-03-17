@@ -441,10 +441,6 @@ variable "rulesets" {
   }
 }
 
-
-
-
-
 variable "webhooks" {
   description = "(Optional) The list of webhooks of the repository (key: webhook_url)"
   type = map(object({

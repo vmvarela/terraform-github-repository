@@ -51,7 +51,7 @@ resource "github_repository_environment" "this" {
   dynamic "deployment_branch_policy" {
     for_each = (each.value.protected_branches != null || each.value.custom_branch_policies != null) ? [1] : []
     content {
-      protected_branches     = each.value.protected_branches && each.value.custom_branch_policies == null
+      protected_branches     = each.value.custom_branch_policies == null ? each.value.protected_branches : false
       custom_branch_policies = try(length(each.value.custom_branch_policies), 0) > 0
     }
   }

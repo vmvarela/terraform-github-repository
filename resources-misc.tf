@@ -34,9 +34,9 @@ resource "github_repository_autolink_reference" "this" {
 }
 
 resource "github_repository_custom_property" "this" {
-  for_each       = var.properties == null ? object({}) : var.properties
+  for_each       = local.properties
   repository     = github_repository.this.name
   property_name  = each.key
-  property_type  = try(var.properties_types[each.key], "string")
-  property_value = flatten([each.value])
+  property_type  = each.value.type
+  property_value = each.value.value
 }
