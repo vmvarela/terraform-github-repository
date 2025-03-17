@@ -79,22 +79,22 @@ resource "github_repository" "this" {
 }
 
 resource "github_repository_dependabot_security_updates" "this" {
-  count      = contains(var.security, "dependabot_security_updates") ? 1 : 0
+  count      = var.dependabot_security_updates != null ? 1 : 0
   repository = github_repository.this.name
-  enabled    = true
+  enabled    = var.dependabot_security_updates
 }
 
 # The default branch is considered the “base” branch in your repository,
 # against which all pull requests and code commits are automatically made,
 # unless you specify a different branch.
 resource "github_branch_default" "this" {
-  count      = try(var.default_branch, null) != null ? 1 : 0
+  count      = var.default_branch != null ? 1 : 0
   repository = github_repository.this.name
   branch     = var.default_branch
 }
 
 resource "github_repository_collaborators" "this" {
-  count      = (try(var.teams, null) != null || try(var.users, null) != null) ? 1 : 0
+  count      = (var.teams != null || var.users != null) ? 1 : 0
   repository = github_repository.this.name
 
   dynamic "user" {
@@ -115,7 +115,7 @@ resource "github_repository_collaborators" "this" {
 }
 
 resource "github_repository_ruleset" "this" {
-  for_each    = try(var.rulesets, null) != null ? var.rulesets : {}
+  for_each    = var.rulesets != null ? var.rulesets : {}
   repository  = github_repository.this.name
   name        = each.key
   enforcement = each.value.enforcement
@@ -227,7 +227,7 @@ resource "github_repository_ruleset" "this" {
 }
 
 resource "github_issue_labels" "this" {
-  count      = try(var.issue_labels, null) != null ? 1 : 0
+  count      = var.issue_labels != null ? 1 : 0
   repository = github_repository.this.name
 
   dynamic "label" {
@@ -241,7 +241,7 @@ resource "github_issue_labels" "this" {
 }
 
 resource "github_repository_autolink_reference" "this" {
-  for_each            = try(var.autolink_references, null) != null ? var.autolink_references : {}
+  for_each            = var.autolink_references != null ? var.autolink_references : {}
   repository          = github_repository.this.name
   key_prefix          = each.key
   target_url_template = each.value.target_url_template
@@ -249,7 +249,7 @@ resource "github_repository_autolink_reference" "this" {
 }
 
 resource "github_repository_webhook" "this" {
-  for_each   = try(var.webhooks, null) != null ? var.webhooks : {}
+  for_each   = var.webhooks != null ? var.webhooks : {}
   repository = github_repository.this.name
   active     = true
   configuration {
@@ -262,7 +262,7 @@ resource "github_repository_webhook" "this" {
 }
 
 resource "github_repository_deploy_key" "this" {
-  for_each   = try(var.deploy_keys, null) != null ? var.deploy_keys : {}
+  for_each   = var.deploy_keys != null ? var.deploy_keys : {}
   repository = github_repository.this.name
   title      = each.key
   key        = each.value.key != null ? each.value.key : tls_private_key.this[each.key].public_key_openssh
@@ -271,7 +271,7 @@ resource "github_repository_deploy_key" "this" {
 
 # auto-generated if the key is not provided
 resource "tls_private_key" "this" {
-  for_each = try(var.deploy_keys, null) == null ? {} : {
+  for_each = var.deploy_keys == null ? {} : {
     for name, config in var.deploy_keys : name => config if config.key == null
   }
   algorithm = "RSA"
@@ -279,14 +279,14 @@ resource "tls_private_key" "this" {
 }
 
 resource "null_resource" "create_subfolder" {
-  count = try(var.deploy_keys, null) == null ? 0 : 1
+  count = var.deploy_keys == null ? 0 : 1
   provisioner "local-exec" {
     command = "mkdir -p ${var.deploy_keys_path}"
   }
 }
 
 resource "local_file" "private_key_file" {
-  for_each = try(var.deploy_keys, null) == null ? {} : {
+  for_each = var.deploy_keys == null ? {} : {
     for name, config in var.deploy_keys : name => config if config.key == null
   }
   filename = "${var.deploy_keys_path}/${github_repository.this.name}-${each.key}.pem"
@@ -297,7 +297,7 @@ resource "local_file" "private_key_file" {
 }
 
 resource "github_repository_file" "this" {
-  for_each       = try(var.files, null) != null ? var.files : {}
+  for_each       = var.files != null ? var.files : {}
   repository     = github_repository.this.name
   file           = each.key
   content        = each.value.from_file != null ? file(each.value.from_file) : each.value.content
@@ -308,13 +308,13 @@ resource "github_repository_file" "this" {
 }
 
 resource "github_actions_repository_access_level" "this" {
-  count        = try(var.actions_access_level, null) != null ? 1 : 0
+  count        = var.actions_access_level != null ? 1 : 0
   repository   = github_repository.this.name
   access_level = var.actions_access_level
 }
 
 resource "github_actions_repository_permissions" "this" {
-  count           = try(var.actions_permissions, null) != null ? 1 : 0
+  count           = var.actions_permissions != null ? 1 : 0
   repository      = github_repository.this.name
   enabled         = var.actions_permissions.enabled
   allowed_actions = var.actions_permissions.allowed_actions
@@ -329,7 +329,7 @@ resource "github_actions_repository_permissions" "this" {
 }
 
 resource "github_actions_secret" "this" {
-  for_each        = try(var.secrets, null) != null ? var.secrets : {}
+  for_each        = var.secrets != null ? var.secrets : {}
   repository      = github_repository.this.name
   secret_name     = each.key
   encrypted_value = each.value.encrypted_value
@@ -337,14 +337,14 @@ resource "github_actions_secret" "this" {
 }
 
 resource "github_actions_variable" "this" {
-  for_each      = try(var.variables, null) != null ? var.variables : {}
+  for_each      = var.variables != null ? var.variables : {}
   repository    = github_repository.this.name
   variable_name = each.key
   value         = each.value
 }
 
 resource "github_repository_environment" "this" {
-  for_each            = try(var.environments, null) != null ? var.environments : {}
+  for_each            = var.environments != null ? var.environments : {}
   repository          = github_repository.this.name
   environment         = each.key
   wait_timer          = each.value.wait_timer
@@ -367,7 +367,7 @@ resource "github_repository_environment" "this" {
 }
 
 resource "github_actions_environment_secret" "this" {
-  for_each = try(var.environments, null) == null ? {} : {
+  for_each = var.environments == null ? {} : {
     for i in flatten([
       for environment in keys(var.environments) : [
         for secret in keys(var.environments[environment].secrets) : {
@@ -388,7 +388,7 @@ resource "github_actions_environment_secret" "this" {
 }
 
 resource "github_actions_environment_variable" "this" {
-  for_each = try(var.environments, null) == null ? {} : {
+  for_each = var.environments == null ? {} : {
     for i in flatten([
       for environment in keys(var.environments) : [
         for variable in keys(var.environments[environment].variables) : {
@@ -407,7 +407,7 @@ resource "github_actions_environment_variable" "this" {
 }
 
 resource "github_repository_environment_deployment_policy" "this" {
-  for_each = try(var.environments, null) == null ? {} : {
+  for_each = var.environments == null ? {} : {
     for i in flatten([
       for environment in keys(var.environments) : [
         for branch_pattern in var.environments[environment].deployment_branch_policy.custom_branch_policies : {
@@ -424,7 +424,7 @@ resource "github_repository_environment_deployment_policy" "this" {
 }
 
 resource "github_repository_custom_property" "this" {
-  for_each       = var.properties
+  for_each       = var.properties == null ? {} : var.properties
   repository     = github_repository.this.name
   property_name  = each.key
   property_type  = try(var.properties_types[each.key], "string")

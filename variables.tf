@@ -248,7 +248,11 @@ variable "template_include_all_branches" {
   default     = null
 }
 
-
+variable "dependabot_security_updates" {
+  description = "(Optional) Set to `true` to enable the automated security fixes."
+  type        = bool
+  default     = null
+}
 
 variable "issue_labels" {
   description = "(Optional) The list of issue labels of the repository (key: label_name)"
@@ -439,26 +443,19 @@ variable "environments" {
 variable "properties" {
   description = "(Optional) The list of properties of the repository (key: property_name)"
   type        = any
-  default     = {}
+  default     = null
 }
 
 variable "properties_types" {
   description = "(Optional) The list of types associated to properties (key: property_name)"
   type        = map(string)
-  default     = {}
+  default     = null
   validation {
     condition     = alltrue([for property_name, property_type in(var.properties_types == null ? {} : var.properties_types) : contains(["single_select", "multi_select", "string", "true_false"], property_type)])
     error_message = "Possible values for property type are single_select, multi_select, string or true_false"
   }
 }
 
-# Code security and analysis
-
-variable "security" {
-  description = "(Optional) The list of security features enabled for the repository."
-  type        = list(string)
-  default     = []
-}
 
 # Deploy keys
 
