@@ -1,6 +1,16 @@
 # GitHub Repository Terraform module
 
-Terraform module which creates repositories on GitHub.
+A Terraform module for comprehensive GitHub repository management. This module offers complete lifecycle control for repositories, including permissions, GitHub Actions configuration, deploy keys, repository properties, user and team access management, autolink references, advanced security features, and ruleset configurations.
+
+The module enables infrastructure-as-code practices for GitHub repositories, supporting key features such as:
+-	Repository creation with customizable settings (visibility, branch protection, merge strategies)
+-	Team and user permission management with granular access control
+-	GitHub Actions integration with secrets and variables management
+-	Deploy keys configuration for automated deployments
+-	Autolink references for connecting external resources
+-	Advanced security features configuration
+-	Custom ruleset implementation for repository governance
+-	Branch protection policies with required checks
 
 ## Usage
 
