@@ -49,12 +49,12 @@ resource "github_actions_repository_access_level" "this" {
 
 # actions_repository_permissions
 resource "github_actions_repository_permissions" "this" {
-  count           = (var.enable_actions != null || var.actions_permissions != null) ? 1 : 0
+  count           = (var.enable_actions != false || try(var.actions_permissions.allowed_actions, null) != null) ? 1 : 0
   repository      = github_repository.this.name
   enabled         = var.enable_actions
-  allowed_actions = var.actions_permissions.allowed_actions
+  allowed_actions = try(var.actions_permissions.allowed_actions, null)
   dynamic "allowed_actions_config" {
-    for_each = var.actions_permissions.allowed_actions == "selected" ? [1] : []
+    for_each = try(var.actions_permissions.allowed_actions, null) == "selected" ? [1] : []
     content {
       github_owned_allowed = try(var.actions_permissions.github_owned_allowed, null)
       patterns_allowed     = try(var.actions_permissions.patterns_allowed, null)

@@ -284,10 +284,10 @@ variable "enable_actions" {
 variable "actions_permissions" {
   description = "(Optional) The list of Github Actions permissions configuration of the repository: `allowed_actions` - (Optional) The permissions policy that controls the actions that are allowed to run. Can be one of: `all`, `local_only`, or `selected`.; `enabled` - (Optional) Should GitHub actions be enabled on this repository?; `github_owned_allowed` - (Optional) Whether GitHub-owned actions are allowed in the repository.; `patterns_allowed` - (Optional) Specifies a list of string-matching patterns to allow specific action(s). Wildcards, tags, and SHAs are allowed. For example, monalisa/octocat@, monalisa/octocat@v2, monalisa/.; `verified_allowed` -  (Optional) Whether actions in GitHub Marketplace from verified creators are allowed. Set to true to allow all GitHub Marketplace actions by verified creators."
   type = object({
-    allowed_actions      = optional(string)
-    github_owned_allowed = optional(bool)
-    patterns_allowed     = optional(list(string))
-    verified_allowed     = optional(bool)
+    allowed_actions      = optional(string, null)
+    github_owned_allowed = optional(bool, true)
+    patterns_allowed     = optional(list(string), null)
+    verified_allowed     = optional(bool, null)
   })
   default = null
   validation {

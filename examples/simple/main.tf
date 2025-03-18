@@ -9,4 +9,10 @@ module "repo" {
   }
   archived           = false
   archive_on_destroy = true
+  enable_actions     = true
+  actions_permissions = {
+    allowed_actions      = "selected"
+    github_owned_allowed = true
+    verified_allowed     = true
+  }
 }
