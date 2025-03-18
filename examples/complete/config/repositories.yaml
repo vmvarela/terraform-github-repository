@@ -27,7 +27,7 @@ test-repo-complete-6:
   description: "This is repo-3"
   homepage_url: "https://www.mycompany.com/issues/"
   topics: ["topic-1", "topic-2"]
-  vulnerability_alerts: true
+  enable_vulnerability_alerts: true
   # pages:
   #   source:
   #     branch: master

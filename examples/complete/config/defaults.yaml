@@ -12,8 +12,6 @@ web_commit_signoff_required: true
 
 license_template: gpl-3.0
 
-security: ["dependabot_alerts"]
-
 template: vmvarela/template
 
 default_branch: master

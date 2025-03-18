@@ -7,5 +7,6 @@ module "repo" {
   branches = {
     "develop" = "master"
   }
+  archived           = false
   archive_on_destroy = true
 }

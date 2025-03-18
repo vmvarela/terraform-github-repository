@@ -1,28 +1,28 @@
 variable "name" {
-  description = "(Required) The name of the repository"
+  description = "(Required) The name of the repository. Changing this will rename the repository"
   type        = string
 }
 
 variable "alias" {
-  description = "(Optional) The original name of the repository (useful for renaming)"
+  description = "(Optional) The original name of the repository (useful for renaming in IaC)"
   type        = string
   default     = null
 }
 
 variable "description" {
-  description = "(Optional) A description of the repository"
+  description = "(Optional) A short description of the repository that will show up on GitHub"
   type        = string
   default     = null
 }
 
-variable "homepage_url" {
-  description = "(Optional) URL of a page describing the project"
+variable "homepage" {
+  description = "(Optional) A URL with more information about the repository"
   type        = string
   default     = null
 }
 
 variable "private" {
-  description = "(Optional) Set to `true` to create a private repository. Repositories are created as public (e.g. open source) by default."
+  description = "(Optional) Either true to make the repository private or false to make it public. Default: false. **Note:** You will get a 422 error if the organization restricts changing repository visibility to organization owners and a non-owner tries to change the value of private."
   type        = bool
   default     = null
 }
@@ -38,55 +38,97 @@ variable "visibility" {
 }
 
 variable "has_issues" {
-  description = "(Optional) Set to `true` to enable the GitHub Issues features on the repository."
-  type        = bool
-  default     = null
-}
-
-variable "has_discussions" {
-  description = "(Optional) Set to `true` to enable GitHub Discussions on the repository. Defaults to `false`"
+  description = "(Optional) Either `true` to enable issues for this repository or `false` to disable them."
   type        = bool
   default     = null
 }
 
 variable "has_projects" {
-  description = "(Optional) Set to `true` to enable the GitHub Projects features on the repository. Per the GitHub documentation when in an organization that has disabled repository projects it will default to `false` and will otherwise default to `true`. If you specify true when it has been disabled it will return an error."
+  description = "(Optional) Either `true` to enable projects for this repository or `false` to disable them. **Note:** If you're creating a repository in an organization that has disabled repository projects, the default is `false`, and if you pass `true`, the API returns an error."
   type        = bool
   default     = null
 }
 
 variable "has_wiki" {
-  description = "(Optional) Set to `true` to enable the GitHub Wiki features on the repository."
+  description = "(Optional) Either `true` to enable the wiki for this repository, `false` to disable it."
+  type        = bool
+  default     = null
+}
+
+variable "has_downloads" {
+  description = "(Optional) Whether downloads are enabled."
   type        = bool
   default     = null
 }
 
 variable "is_template" {
-  description = "(Optional) Set to `true` if this is a template repository"
+  description = "(Optional) Either `true` to make this repo available as a template repository or `false` to prevent it."
+  type        = bool
+  default     = null
+}
+
+variable "template" {
+  description = "(Optional) Use a template repository to create this resource (owner/repo)"
+  type        = string
+  default     = null
+}
+
+variable "template_include_all_branches" {
+  description = "(Optional) Whether the new repository should include all the branches from the template repository (defaults to false, which includes only the default branch from the template)."
+  type        = bool
+  default     = null
+}
+
+variable "auto_init" {
+  description = "(Optional) Set to `true` to produce an initial commit in the repository"
+  type        = bool
+  default     = null
+}
+
+variable "gitignore_template" {
+  description = "(Optional) Use the [name of the template](https://github.com/github/gitignore) without the extension. For example, `Haskell`."
+  type        = string
+  default     = null
+}
+
+variable "license_template" {
+  description = "(Optional) Use the [name of the template](https://github.com/github/choosealicense.com/tree/gh-pages/_licenses) without the extension. For example, `mit` or `mpl-2.0`."
+  type        = string
+  default     = null
+}
+
+variable "allow_squash_merge" {
+  description = "(Optional) Either `true` to allow squash-merging pull requests, or `false` to prevent squash-merging."
   type        = bool
   default     = null
 }
 
 variable "allow_merge_commit" {
-  description = "(Optional) Set to `false` to disable merge commits on the repository."
-  type        = bool
-  default     = null
-}
-
-variable "allow_squash_merge" {
-  description = "(Optional) Set to `false` to disable squash merges on the repository."
+  description = "(Optional) Either `true` to allow merging pull requests with a merge commit, or `false` to prevent merging pull requests with merge commits."
   type        = bool
   default     = null
 }
 
 variable "allow_rebase_merge" {
-  description = "(Optional) Set to `false` to disable rebase merges on the repository."
+  description = "(Optional) Either `true` to allow rebase-merging pull requests, or `false` to prevent rebase-merging."
   type        = bool
   default     = null
 }
 
 variable "allow_auto_merge" {
   description = "(Optional) Set to `true` to allow auto-merging pull requests on the repository."
+  type        = bool
+  default     = null
+}
+
+variable "delete_branch_on_merge" {
+  description = "(Optional) Either `true` to enable automatic deletion of branches on merge, or `false` to disable."
+  type        = bool
+  default     = null
+}
+
+variable "allow_update_branch" {
+  description = "(Optional) Either `true` to always allow a pull request head branch that is behind its base branch to be updated even if it is not required to be up to date before merging, or `false` otherwise."
   type        = bool
   default     = null
 }
@@ -131,44 +173,60 @@ variable "merge_commit_message" {
   }
 }
 
-variable "delete_branch_on_merge" {
-  description = "(Optional) Automatically delete head branch after a pull request is merged. Defaults to `false`."
+variable "custom_properties" {
+  description = "(Optional) The custom properties for the new repository. The keys are the custom property names, and the values are the corresponding custom property values."
+  type        = any
+  default     = null
+}
+
+variable "custom_properties_types" {
+  description = "(Optional) The list of types associated to properties (key: property_name)"
+  type        = map(string)
+  default     = null
+  validation {
+    condition     = alltrue([for property_name, property_type in(var.custom_properties_types == null ? {} : var.custom_properties_types) : contains(["single_select", "multi_select", "string", "true_false"], property_type)])
+    error_message = "Possible values for property type are single_select, multi_select, string or true_false"
+  }
+}
+
+variable "enable_advanced_security" {
+  description = "(Optional) Use to enable or disable GitHub Advanced Security for this repository."
   type        = bool
   default     = null
 }
 
-variable "web_commit_signoff_required" {
-  description = "(Optional) Require contributors to sign off on web-based commits. See more here. Defaults to `false`"
+variable "enable_secret_scanning" {
+  description = "(Optional) Use to enable or disable secret scanning for this repository. If set to `true`, the repository's visibility must be `public` or `enable_advanced_security` must also be `true`."
   type        = bool
   default     = null
 }
 
-variable "auto_init" {
-  description = "(Optional) Set to `true` to produce an initial commit in the repository"
+variable "enable_secret_scanning_push_protection" {
+  description = "(Optional) Use to enable or disable secret scanning push protection for this repository. If set to `true`, the repository's visibility must be `public` or `enable_advanced_security` must also be `true`."
   type        = bool
   default     = null
 }
 
-variable "gitignore_template" {
-  description = "(Optional) Use the [name of the template](https://github.com/github/gitignore) without the extension. For example, `Haskell`."
-  type        = string
+variable "enable_vulnerability_alerts" {
+  description = "(Optional) Either `true` to enable vulnerability alerts, or `false` to disable vulnerability alerts."
+  type        = bool
   default     = null
 }
 
-variable "license_template" {
-  description = "(Optional) Use the [name of the template](https://github.com/github/choosealicense.com/tree/gh-pages/_licenses) without the extension. For example, `mit` or `mpl-2.0`."
-  type        = string
+variable "enable_dependabot_security_updates" {
+  description = "(Optional) Set to `true` to enable the automated security fixes."
+  type        = bool
   default     = null
 }
 
 variable "default_branch" {
-  description = "(Optional) base branch against which all pull requests and code commits are automatically made unless you specify a different branch. **NOTE:** This can only be set after a repository has already been created, and after a correct reference has been created for the target branch inside the repository. This means a user will have to omit this parameter from the initial repository creation and create the target branch inside of the repository prior to setting this attribute."
+  description = "(Optional) Updates the default branch for this repository."
   type        = string
   default     = null
 }
 
 variable "archived" {
-  description = "(Optional) Specifies if the repository should be archived. Defaults to `false`. **NOTE:** Currently, the API does not support unarchiving."
+  description = "(Optional) Whether to archive this repository. `false` will unarchive a previously archived repository."
   type        = bool
   default     = null
 }
@@ -179,29 +237,18 @@ variable "archive_on_destroy" {
   default     = null
 }
 
+variable "web_commit_signoff_required" {
+  description = "(Optional) Require contributors to sign off on web-based commits. See more here. Defaults to `false`"
+  type        = bool
+  default     = null
+}
+
 variable "topics" {
-  description = "(Optional) The list of topics of the repository"
+  description = "(Optional) A list of topics to set on the repository"
   type        = list(string)
   default     = null
 }
 
-variable "vulnerability_alerts" {
-  description = "(Optional) - Set to `true` to enable security alerts for vulnerable dependencies. Enabling requires alerts to be enabled on the owner level. See [GitHub Documentation](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository#allow_squash_merge-1:~:text=(Optional)%20%2D%20Set%20to,in%20those%20settings.) for details. Note that vulnerability alerts have not been successfully tested on any GitHub Enterprise instance and may be unavailable in those settings."
-  type        = bool
-  default     = null
-}
-
-variable "ignore_vulnerability_alerts_during_read" {
-  description = "(Optional) - Set to `true` to not call the vulnerability alerts endpoint so the resource can also be used without admin permissions during read."
-  type        = bool
-  default     = null
-}
-
-variable "allow_update_branch" {
-  description = "(Optional) - Set to `true` to always suggest updating pull request branches."
-  type        = bool
-  default     = null
-}
 
 variable "pages" {
   description = "(Optional) The repository's GitHub Pages configuration. Supports the following: `source_branch` - (Optional) The repository branch used to publish the site's source files. (i.e. main or gh-pages).; `source_path` -  (Optional) The repository directory from which the site publishes (Default: `/`).; (Optional) The type of GitHub Pages site to build. Can be `legacy` or `workflow`. If you use `legacy` as build type you need to set the option `source_branch`.; `cname` - (Optional) The custom domain for the repository. This can only be set after the repository has been created."
@@ -218,36 +265,6 @@ variable "pages" {
   }
 }
 
-variable "advanced_security" {
-  description = "(Optional) Set to `true` to enable advanced security features on the repository."
-  type        = bool
-  default     = null
-}
-
-variable "secret_scanning" {
-  description = "(Optional) Set to `true` to enable secret scanning on the repository. If set to `true`, the repository's visibility must be `public` or `advanced_security` must also be `true`."
-  type        = bool
-  default     = null
-}
-
-variable "secret_scanning_push_protection" {
-  description = "(Optional) Set to `true` to enable secret scanning push protection on the repository. If set to `true`, the repository's visibility must be `public` or `advanced_security` must also be `true`."
-  type        = bool
-  default     = null
-}
-
-variable "template" {
-  description = "(Optional) Use a template repository to create this resource (owner/repo)"
-  type        = string
-  default     = null
-}
-
-variable "template_include_all_branches" {
-  description = "(Optional) Whether the new repository should include all the branches from the template repository (defaults to false, which includes only the default branch from the template)."
-  type        = bool
-  default     = null
-}
-
 variable "actions_access_level" {
   description = "(Optional) The access level for the repository. Must be one of `none`, `user`, `organization`, or `enterprise`. Default: `none`"
   type        = string
@@ -258,10 +275,15 @@ variable "actions_access_level" {
   }
 }
 
+variable "enable_actions" {
+  description = "(Optional) Either `true` to enable Github Actions, or `false` to disable."
+  type        = bool
+  default     = null
+}
+
 variable "actions_permissions" {
   description = "(Optional) The list of Github Actions permissions configuration of the repository: `allowed_actions` - (Optional) The permissions policy that controls the actions that are allowed to run. Can be one of: `all`, `local_only`, or `selected`.; `enabled` - (Optional) Should GitHub actions be enabled on this repository?; `github_owned_allowed` - (Optional) Whether GitHub-owned actions are allowed in the repository.; `patterns_allowed` - (Optional) Specifies a list of string-matching patterns to allow specific action(s). Wildcards, tags, and SHAs are allowed. For example, monalisa/octocat@, monalisa/octocat@v2, monalisa/.; `verified_allowed` -  (Optional) Whether actions in GitHub Marketplace from verified creators are allowed. Set to true to allow all GitHub Marketplace actions by verified creators."
   type = object({
-    enabled              = optional(bool)
     allowed_actions      = optional(string)
     github_owned_allowed = optional(bool)
     patterns_allowed     = optional(list(string))
@@ -333,11 +355,6 @@ variable "files" {
   default = null
 }
 
-variable "dependabot_security_updates" {
-  description = "(Optional) Set to `true` to enable the automated security fixes."
-  type        = bool
-  default     = null
-}
 
 variable "environments" {
   description = "(Optional) The list of environments configuration of the repository (key: environment_name)"
@@ -358,23 +375,6 @@ variable "environments" {
   default = null
 }
 
-
-variable "properties" {
-  description = "(Optional) The list of properties of the repository (key: property_name)"
-  type        = any
-  default     = null
-}
-
-variable "properties_types" {
-  description = "(Optional) The list of types associated to properties (key: property_name)"
-  type        = map(string)
-  default     = null
-  validation {
-    condition     = alltrue([for property_name, property_type in(var.properties_types == null ? {} : var.properties_types) : contains(["single_select", "multi_select", "string", "true_false"], property_type)])
-    error_message = "Possible values for property type are single_select, multi_select, string or true_false"
-  }
-}
-
 variable "deploy_keys" {
   description = "(Optional) The list of deploy keys of the repository (key: key_title)"
   type = map(object({
@@ -389,7 +389,6 @@ variable "deploy_keys_path" {
   type        = string
   default     = "./deploy_keys"
 }
-
 
 variable "rulesets" {
   description = "(Optional) Repository rules"
@@ -455,13 +454,6 @@ variable "webhooks" {
     error_message = "Possible values for content_type are json or form."
   }
 }
-
-
-
-
-
-
-
 
 variable "secrets" {
   description = "(Optional) The list of secrets configuration of the repository (key: secret_name)"
