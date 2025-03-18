@@ -25,7 +25,7 @@ test-repo-complete-2:
 test-repo-complete-6:
   alias: test-repo-complete-3
   description: "This is repo-3"
-  homepage_url: "https://www.mycompany.com/issues/"
+  homepage: "https://www.mycompany.com/issues/"
   topics: ["topic-1", "topic-2"]
   enable_vulnerability_alerts: true
   # pages:

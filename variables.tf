@@ -245,7 +245,7 @@ variable "web_commit_signoff_required" {
 
 variable "topics" {
   description = "(Optional) A list of topics to set on the repository"
-  type        = list(string)
+  type        = set(string)
   default     = null
 }
 
@@ -286,7 +286,7 @@ variable "actions_permissions" {
   type = object({
     allowed_actions      = optional(string, null)
     github_owned_allowed = optional(bool, true)
-    patterns_allowed     = optional(list(string), null)
+    patterns_allowed     = optional(set(string), null)
     verified_allowed     = optional(bool, null)
   })
   default = null
@@ -362,10 +362,10 @@ variable "environments" {
     wait_timer             = optional(number)
     can_admins_bypass      = optional(bool)
     prevent_self_review    = optional(bool)
-    reviewers_users        = optional(list(string), [])
-    reviewers_teams        = optional(list(string), [])
+    reviewers_users        = optional(set(string), [])
+    reviewers_teams        = optional(set(string), [])
     protected_branches     = optional(bool)
-    custom_branch_policies = optional(list(string))
+    custom_branch_policies = optional(set(string))
     secrets = optional(map(object({
       encrypted_value = optional(string)
       plaintext_value = optional(string)
@@ -395,13 +395,13 @@ variable "rulesets" {
   type = map(object({
     enforcement                          = optional(string, "active")
     target                               = optional(string, "branch")
-    include                              = optional(list(string), [])
-    exclude                              = optional(list(string), [])
+    include                              = optional(set(string), [])
+    exclude                              = optional(set(string), [])
     bypass_mode                          = optional(string, "always")
     bypass_organization_admin            = optional(bool)
-    bypass_roles                         = optional(list(string))
-    bypass_teams                         = optional(list(string))
-    bypass_integration                   = optional(list(string))
+    bypass_roles                         = optional(set(string))
+    bypass_teams                         = optional(set(string))
+    bypass_integration                   = optional(set(string))
     regex_branch_name                    = optional(string)
     regex_tag_name                       = optional(string)
     regex_commit_author_email            = optional(string)
@@ -416,10 +416,10 @@ variable "rulesets" {
     required_pr_last_push_approval       = optional(bool)
     required_pr_approving_review_count   = optional(number)
     required_pr_review_thread_resolution = optional(bool)
-    required_deployment_environments     = optional(list(string))
+    required_deployment_environments     = optional(set(string))
     required_linear_history              = optional(bool)
     required_signatures                  = optional(bool)
-    required_checks                      = optional(list(string))
+    required_checks                      = optional(set(string))
     required_code_scanning = optional(map(object({ # index is name of tool
       alerts_threshold          = optional(string)
       security_alerts_threshold = optional(string)
@@ -446,7 +446,7 @@ variable "webhooks" {
     content_type = string
     insecure_ssl = optional(bool, false)
     secret       = optional(string)
-    events       = optional(list(string))
+    events       = optional(set(string))
   }))
   default = null
   validation {
