@@ -1,6 +1,6 @@
 module "repo" {
   source         = "../.."
-  name           = "test-repo-simple"
+  name           = "test-repository-simple"
   visibility     = "private"
   default_branch = "master"
   template       = "vmvarela/template"

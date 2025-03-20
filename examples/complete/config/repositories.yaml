@@ -1,7 +1,7 @@
-test-repo-complete-1:
+test-repository-complete-1:
   description: "This is repo-1"
 
-test-repo-complete-2:
+test-repository-complete-2:
   description: "This is repo-2"
   #issue_labels:
   #  Urgent:
@@ -22,8 +22,7 @@ test-repo-complete-2:
   variables:
     MYVAR: "myvalue"
 
-test-repo-complete-6:
-  alias: test-repo-complete-3
+test-repository-complete-6:
   description: "This is repo-3"
   homepage: "https://www.mycompany.com/issues/"
   topics: ["topic-1", "topic-2"]
