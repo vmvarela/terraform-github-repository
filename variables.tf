@@ -249,20 +249,36 @@ variable "topics" {
   default     = null
 }
 
+variable "pages_source_branch" {
+  description = "(Optional) The repository branch used to publish the site's source files. (i.e. `main` or `gh-pages`)"
+  type        = string
+  default     = null
+}
 
-variable "pages" {
-  description = "(Optional) The repository's GitHub Pages configuration. Supports the following: `source_branch` - (Optional) The repository branch used to publish the site's source files. (i.e. main or gh-pages).; `source_path` -  (Optional) The repository directory from which the site publishes (Default: `/`).; (Optional) The type of GitHub Pages site to build. Can be `legacy` or `workflow`. If you use `legacy` as build type you need to set the option `source_branch`.; `cname` - (Optional) The custom domain for the repository. This can only be set after the repository has been created."
-  type = object({
-    source_branch = optional(string)
-    source_path   = optional(string)
-    build_type    = optional(string, "workflow")
-    cname         = optional(string)
-  })
-  default = null
+variable "pages_source_path" {
+  description = "(Optional) The repository directory from which the site publishes (Default: `/`)."
+  type        = string
+  default     = null
+}
+
+variable "pages_build_type" {
+  description = "(Optional) The type of GitHub Pages site to build. Can be `legacy` or `workflow`. If you use `legacy` as build type you need to set the option `pages_source_branch`."
+  type        = string
+  default     = null
   validation {
-    condition     = var.pages == null || can(regex("^legacy$|^workflow$", var.pages.build_type))
-    error_message = "pages.build_type must be legacy or workflow. If you use legacy as build type you need to set the option source_branch."
+    condition     = var.pages_build_type == null || can(regex("^legacy$|^workflow$", var.pages_build_type))
+    error_message = "pages_build_type must be legacy or workflow."
   }
+  validation {
+    condition     = var.pages_build_type != "legacy" || var.pages_source_branch != null
+    error_message = "If you use legacy as build type you need to set the option pages_source_branch."
+  }
+}
+
+variable "pages_cname" {
+  description = "(Optional) The custom domain for the repository. This can only be set after the repository has been created."
+  type        = string
+  default     = null
 }
 
 variable "actions_access_level" {
@@ -281,19 +297,32 @@ variable "enable_actions" {
   default     = null
 }
 
-variable "actions_permissions" {
-  description = "(Optional) The list of Github Actions permissions configuration of the repository: `allowed_actions` - (Optional) The permissions policy that controls the actions that are allowed to run. Can be one of: `all`, `local_only`, or `selected`.; `enabled` - (Optional) Should GitHub actions be enabled on this repository?; `github_owned_allowed` - (Optional) Whether GitHub-owned actions are allowed in the repository.; `patterns_allowed` - (Optional) Specifies a list of string-matching patterns to allow specific action(s). Wildcards, tags, and SHAs are allowed. For example, monalisa/octocat@, monalisa/octocat@v2, monalisa/.; `verified_allowed` -  (Optional) Whether actions in GitHub Marketplace from verified creators are allowed. Set to true to allow all GitHub Marketplace actions by verified creators."
-  type = object({
-    allowed_actions      = optional(string, null)
-    github_owned_allowed = optional(bool, true)
-    patterns_allowed     = optional(set(string), null)
-    verified_allowed     = optional(bool, null)
-  })
-  default = null
+variable "actions_allowed_policy" {
+  description = "(Optional) The permissions policy that controls the actions that are allowed to run. Can be one of: `all`, `local_only`, or `selected`."
+  type        = string
+  default     = null
   validation {
-    condition     = var.actions_permissions == null || try(var.actions_permissions.allowed_actions, null) == null || can(regex("^all$|^local_only$|^selected$", var.actions_permissions.allowed_actions))
-    error_message = "permissions.allowed_actions: Only all, local_only and selected values are allowed"
+    condition     = var.actions_access_level == null || can(regex("^all$|^local_only$|^selected$", var.actions_allowed_policy))
+    error_message = "Can be one of: all, local_only, or selected."
   }
+}
+
+variable "actions_allowed_github" {
+  description = "(Optional) Whether GitHub-owned actions are allowed in the repository. Only available when `actions_allowed_policy` = `selected`."
+  type        = bool
+  default     = true
+}
+
+variable "actions_allowed_patterns" {
+  description = "(Optional) Specifies a list of string-matching patterns to allow specific action(s). Wildcards, tags, and SHAs are allowed. For example, `monalisa/octocat@`, `monalisa/octocat@v2`, `monalisa/`."
+  type        = set(string)
+  default     = null
+}
+
+variable "actions_allowed_verified" {
+  description = "(Optional) Whether actions in GitHub Marketplace from verified creators are allowed. Set to `true` to allow all GitHub Marketplace actions by verified creators. Only available when `actions_allowed_policy` = `selected`."
+  type        = bool
+  default     = null
 }
 
 variable "branches" {

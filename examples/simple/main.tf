@@ -8,12 +8,9 @@ module "repo" {
   branches = {
     "develop" = "master"
   }
-  archived           = false
-  archive_on_destroy = false
-  enable_actions     = true
-  actions_permissions = {
-    allowed_actions      = "selected"
-    github_owned_allowed = true
-    verified_allowed     = true
-  }
+  archived                 = false
+  archive_on_destroy       = false
+  enable_actions           = true
+  actions_allowed_policy   = "selected"
+  actions_allowed_verified = true
 }

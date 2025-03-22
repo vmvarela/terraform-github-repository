@@ -49,16 +49,16 @@ resource "github_actions_repository_access_level" "this" {
 
 # actions_repository_permissions
 resource "github_actions_repository_permissions" "this" {
-  count           = (var.enable_actions != null || try(var.actions_permissions.allowed_actions, null) != null) ? 1 : 0
+  count           = (var.enable_actions != null || try(var.actions_allowed_policy, null) != null) ? 1 : 0
   repository      = github_repository.this.name
   enabled         = var.enable_actions
-  allowed_actions = var.enable_actions == false ? null : try(var.actions_permissions.allowed_actions, "all")
+  allowed_actions = var.enable_actions == false ? null : try(var.actions_allowed_policy, "all")
   dynamic "allowed_actions_config" {
-    for_each = (var.enable_actions == false ? null : try(var.actions_permissions.allowed_actions, "all")) == "selected" ? [1] : []
+    for_each = (var.enable_actions == false ? null : var.actions_allowed_policy) == "selected" ? [1] : []
     content {
-      github_owned_allowed = try(var.actions_permissions.github_owned_allowed, true)
-      patterns_allowed     = try(var.actions_permissions.patterns_allowed, null)
-      verified_allowed     = try(var.actions_permissions.verified_allowed, null)
+      github_owned_allowed = var.actions_allowed_github
+      patterns_allowed     = var.actions_allowed_patterns
+      verified_allowed     = var.actions_allowed_verified
     }
   }
 }
@@ -153,17 +153,17 @@ resource "github_repository" "this" {
   allow_update_branch         = var.allow_update_branch
 
   dynamic "pages" {
-    for_each = var.pages != null ? [1] : []
+    for_each = var.pages_build_type != null ? [1] : []
     content {
       dynamic "source" {
-        for_each = var.pages.source_branch != null ? [1] : []
+        for_each = var.pages_source_branch != null ? [1] : []
         content {
-          branch = var.pages.source_branch
-          path   = var.pages.source_path
+          branch = var.pages_source_branch
+          path   = var.pages_source_path
         }
       }
-      build_type = var.pages.build_type
-      cname      = var.pages.cname
+      build_type = var.pages_build_type
+      cname      = var.pages_cname
     }
   }
 

@@ -8,6 +8,7 @@ ENV TFLINT_VERSION=0.55.1
 RUN apk update && apk add --no-cache \
     bash \
     curl \
+    fish \
     gcompat \
     git \
     github-cli \
@@ -17,13 +18,11 @@ RUN apk update && apk add --no-cache \
     make \
     nodejs \
     npm \
-    oh-my-zsh \
     openssh \
     pre-commit \
     py3-pip \
     unzip \
-    && rm -rf /var/cache/apk/* \
-    && cp /usr/share/oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+    && rm -rf /var/cache/apk/*
 
 # Instalar Terraform
 RUN curl -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
