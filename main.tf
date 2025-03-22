@@ -1,13 +1,12 @@
-# actions_environment_secret
-resource "github_actions_environment_secret" "this" {
+# actions_environment_secret (plaintext)
+resource "github_actions_environment_secret" "plaintext" {
   for_each = var.environments == null ? {} : {
     for i in flatten([
       for environment in keys(var.environments) : [
         for secret in keys(var.environments[environment].secrets) : {
-          environment     = environment
-          secret_name     = secret
-          encrypted_value = var.environments[environment].secrets[secret].encrypted_value
-          plaintext_value = var.environments[environment].secrets[secret].plaintext_value
+          environment  = environment
+          secret_name  = secret
+          secret_value = var.environments[environment].secrets[secret]
         }
       ] if var.environments[environment].secrets != null
     ])
@@ -16,8 +15,27 @@ resource "github_actions_environment_secret" "this" {
   repository      = github_repository.this.name
   environment     = github_repository_environment.this[each.value.environment].environment
   secret_name     = each.value.secret_name
-  encrypted_value = each.value.encrypted_value
-  plaintext_value = each.value.plaintext_value
+  plaintext_value = each.value.secret_value
+}
+
+# actions_environment_secret (encrypted)
+resource "github_actions_environment_secret" "encrypted" {
+  for_each = var.environments == null ? {} : {
+    for i in flatten([
+      for environment in keys(var.environments) : [
+        for secret in keys(var.environments[environment].secrets_encrypted) : {
+          environment  = environment
+          secret_name  = secret
+          secret_value = var.environments[environment].secrets_encrypted[secret]
+        }
+      ] if var.environments[environment].secrets != null
+    ])
+    : format("%s:%s", i.environment, i.secret_name) => i
+  }
+  repository      = github_repository.this.name
+  environment     = github_repository_environment.this[each.value.environment].environment
+  secret_name     = each.value.secret_name
+  encrypted_value = each.value.secret_value
 }
 
 # actions_environment_variable
@@ -63,13 +81,20 @@ resource "github_actions_repository_permissions" "this" {
   }
 }
 
-# actions_secret
-resource "github_actions_secret" "this" {
+# actions_secret (plaintext)
+resource "github_actions_secret" "plaintext" {
   for_each        = var.secrets != null ? var.secrets : {}
   repository      = github_repository.this.name
   secret_name     = each.key
-  encrypted_value = each.value.encrypted_value
-  plaintext_value = each.value.plaintext_value
+  plaintext_value = each.value
+}
+
+# actions_secret (encrypted)
+resource "github_actions_secret" "encrypted" {
+  for_each        = var.secrets_encrypted != null ? var.secrets_encrypted : {}
+  repository      = github_repository.this.name
+  secret_name     = each.key
+  encrypted_value = each.value
 }
 
 # actions_variable
@@ -97,13 +122,20 @@ resource "github_branch_default" "this" {
   branch     = var.default_branch
 }
 
-# dependabot_secret
-resource "github_dependabot_secret" "this" {
-  for_each        = var.dependabot_secrets != null ? var.secrets : {}
+# dependabot_secret (plaintext)
+resource "github_dependabot_secret" "plaintext" {
+  for_each        = var.dependabot_secrets != null ? var.dependabot_secrets : (var.dependabot_copy_secrets ? var.secrets : {})
   repository      = github_repository.this.name
   secret_name     = each.key
-  encrypted_value = each.value.encrypted_value
-  plaintext_value = each.value.plaintext_value
+  plaintext_value = each.value
+}
+
+# dependabot_secret (encrypted)
+resource "github_dependabot_secret" "encrypted" {
+  for_each        = var.dependabot_secrets_encrypted != null ? var.dependabot_secrets_encrypted : (var.dependabot_copy_secrets ? var.secrets_encrypted : {})
+  repository      = github_repository.this.name
+  secret_name     = each.key
+  encrypted_value = each.value
 }
 
 # issue_labels

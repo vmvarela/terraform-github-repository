@@ -332,12 +332,21 @@ variable "branches" {
 }
 
 variable "dependabot_secrets" {
-  description = "(Optional) The list of secrets configuration of the repository (key: `secret_name`, arguments: `encrypted_value` or `plaintext_value`)"
-  type = map(object({
-    encrypted_value = optional(string)
-    plaintext_value = optional(string)
-  }))
-  default = null
+  description = "(Optional) The list of secrets configuration of the repository (key: `secret_name`). Only plaintext secrets."
+  type        = map(string)
+  default     = null
+}
+
+variable "dependabot_secrets_encrypted" {
+  description = "(Optional) The list of secrets configuration of the repository (key: `secret_name`). Only encrypted secrets."
+  type        = map(string)
+  default     = null
+}
+
+variable "dependabot_copy_secrets" {
+  description = "(Optional) If dependabot uses same repository secrets (plaintext or encrypted). Makes a copy."
+  type        = bool
+  default     = false
 }
 
 variable "issue_labels" {
@@ -395,11 +404,9 @@ variable "environments" {
     reviewers_teams        = optional(set(string), [])
     protected_branches     = optional(bool)
     custom_branch_policies = optional(set(string))
-    secrets = optional(map(object({
-      encrypted_value = optional(string)
-      plaintext_value = optional(string)
-    })))
-    variables = optional(map(string))
+    secrets                = optional(map(string))
+    secrets_encrypted      = optional(map(string))
+    variables              = optional(map(string))
   }))
   default = null
 }
@@ -485,12 +492,15 @@ variable "webhooks" {
 }
 
 variable "secrets" {
-  description = "(Optional) The list of secrets configuration of the repository (key: secret_name)"
-  type = map(object({
-    encrypted_value = optional(string)
-    plaintext_value = optional(string)
-  }))
-  default = null
+  description = "(Optional) The list of secrets configuration of the repository (key: secret_name). Only plaintext secrets."
+  type        = map(string)
+  default     = null
+}
+
+variable "secrets_encrypted" {
+  description = "(Optional) The list of secrets configuration of the repository (key: secret_name). Only encrypted secrets."
+  type        = map(string)
+  default     = null
 }
 
 variable "variables" {

@@ -14,6 +14,14 @@ variables {
   enable_actions           = true
   actions_allowed_policy   = "selected"
   actions_allowed_verified = true
+
+  secrets = {
+    "SECRETO" = "VALOR"
+  }
+  secrets_encrypted = {
+    "CLAVE" = base64encode("VALOR-ENCRIPTADO")
+  }
+  dependabot_copy_secrets = true
 }
 
 run "basic_repository_creation" {
