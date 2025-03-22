@@ -1,5 +1,6 @@
 visibility: public
 
+topics: ["terraform-test"]
 has_issues: true
 
 allow_update_branch: true

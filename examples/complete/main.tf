@@ -1,8 +1,7 @@
 module "github" {
-  for_each         = { for k, v in local.repositories : (try(v.alias, null) != null ? v.alias : k) => v }
-  source           = "../../"
-  deploy_keys_path = "./keys_pem"
-
+  for_each                               = { for k, v in local.repositories : (try(v.alias, null) != null ? v.alias : k) => v }
+  source                                 = "../../"
+  deploy_keys_path                       = "./keys_pem"
   name                                   = each.key
   description                            = try(each.value.description, try(local.defaults.description, null))
   homepage                               = try(each.value.homepage, try(local.defaults.homepage, null))
@@ -39,20 +38,18 @@ module "github" {
   template_include_all_branches          = try(each.value.template_include_all_branches, try(local.defaults.template_include_all_branches, null))
   branches                               = try(each.value.branches, try(local.defaults.branches, null))
   dependabot_secrets                     = try(each.value.dependabot_secrets, try(local.defaults.dependabot_secrets, null))
-
-
-  teams                = try(each.value.teams, try(local.defaults.teams, null))
-  users                = try(each.value.users, try(local.defaults.users, null))
-  rulesets             = try(each.value.rulesets, try(local.defaults.rulesets, null))
-  issue_labels         = try(each.value.issue_labels, try(local.defaults.issue_labels, null))
-  autolink_references  = try(each.value.autolink_references, try(local.defaults.autolink_references, null))
-  webhooks             = try(each.value.webhooks, try(local.defaults.webhooks, null))
-  deploy_keys          = try(each.value.deploy_keys, try(local.defaults.deploy_keys, null))
-  files                = try(each.value.files, try(local.defaults.files, null))
-  actions_access_level = try(each.value.actions_access_level, try(local.defaults.actions_access_level, null))
-  actions_permissions  = try(each.value.actions_permissions, try(local.defaults.actions_permissions, null))
-  secrets              = try(each.value.secrets, try(local.defaults.secrets, null))
-  variables            = try(each.value.variables, try(local.defaults.variables, null))
-  environments         = try(each.value.environments, try(local.defaults.environments, null))
-  custom_properties    = try(each.value.custom_properties, try(local.defaults.custom_properties, null))
+  teams                                  = try(each.value.teams, try(local.defaults.teams, null))
+  users                                  = try(each.value.users, try(local.defaults.users, null))
+  rulesets                               = try(each.value.rulesets, try(local.defaults.rulesets, null))
+  issue_labels                           = try(each.value.issue_labels, try(local.defaults.issue_labels, null))
+  autolink_references                    = try(each.value.autolink_references, try(local.defaults.autolink_references, null))
+  webhooks                               = try(each.value.webhooks, try(local.defaults.webhooks, null))
+  deploy_keys                            = try(each.value.deploy_keys, try(local.defaults.deploy_keys, null))
+  files                                  = try(each.value.files, try(local.defaults.files, null))
+  actions_access_level                   = try(each.value.actions_access_level, try(local.defaults.actions_access_level, null))
+  actions_permissions                    = try(each.value.actions_permissions, try(local.defaults.actions_permissions, null))
+  secrets                                = try(each.value.secrets, try(local.defaults.secrets, null))
+  variables                              = try(each.value.variables, try(local.defaults.variables, null))
+  environments                           = try(each.value.environments, try(local.defaults.environments, null))
+  custom_properties                      = try(each.value.custom_properties, try(local.defaults.custom_properties, null))
 }

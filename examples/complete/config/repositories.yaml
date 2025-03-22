@@ -25,7 +25,7 @@ test-repository-complete-2:
 test-repository-complete-6:
   description: "This is repo-3"
   homepage: "https://www.mycompany.com/issues/"
-  topics: ["topic-1", "topic-2"]
+  topics: ["terraform-test", "topic-1", "topic-2"]
   enable_vulnerability_alerts: true
   # pages:
   #   source:
