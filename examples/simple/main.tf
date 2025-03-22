@@ -13,4 +13,11 @@ module "repo" {
   enable_actions           = true
   actions_allowed_policy   = "selected"
   actions_allowed_verified = true
+  webhooks = [
+    {
+      url          = "https://www.google.es"
+      events       = ["issues"]
+      content_type = "form"
+    }
+  ]
 }

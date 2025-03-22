@@ -477,18 +477,9 @@ variable "rulesets" {
 }
 
 variable "webhooks" {
-  description = "(Optional) The list of webhooks of the repository (key: webhook_url)"
-  type = map(object({
-    content_type = string
-    insecure_ssl = optional(bool, false)
-    secret       = optional(string)
-    events       = optional(set(string))
-  }))
-  default = null
-  validation {
-    condition     = alltrue([for url, config in(var.webhooks == null ? {} : var.webhooks) : contains(["form", "json"], config.content_type)])
-    error_message = "Possible values for content_type are json or form."
-  }
+  description = "(Optional) The list of webhooks of the repository"
+  type        = list(any)
+  default     = null
 }
 
 variable "secrets" {

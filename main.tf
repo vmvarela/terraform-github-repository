@@ -469,17 +469,3 @@ resource "github_repository_ruleset" "this" {
     }
   }
 }
-
-# repository_webhook
-resource "github_repository_webhook" "this" {
-  for_each   = var.webhooks != null ? var.webhooks : {}
-  repository = github_repository.this.name
-  active     = true
-  configuration {
-    url          = each.key
-    content_type = each.value.content_type
-    insecure_ssl = each.value.insecure_ssl
-    secret       = each.value.secret
-  }
-  events = each.value.events
-}

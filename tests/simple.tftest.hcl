@@ -22,9 +22,16 @@ variables {
     "CLAVE" = base64encode("VALOR-ENCRIPTADO")
   }
   dependabot_copy_secrets = true
+  webhooks = [
+    {
+      url          = "https://www.google.es"
+      events       = ["issues"]
+      content_type = "form"
+    }
+  ]
 }
 
-run "basic_repository_creation" {
+run "repository_creation" {
   command = apply
 
   assert {
