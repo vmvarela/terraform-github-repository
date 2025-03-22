@@ -380,19 +380,10 @@ variable "teams" {
 }
 
 variable "files" {
-  description = "(Optional) The list of files of the repository (key: file_path)"
-  type = map(object({
-    content             = optional(string)
-    from_file           = optional(string)
-    branch              = optional(string)
-    commit_author       = optional(string)
-    commit_email        = optional(string)
-    commit_message      = optional(string)
-    overwrite_on_create = optional(bool, true)
-  }))
-  default = null
+  description = "(Optional) The list of files of the repository (key: file_path). See [file module](./modules/file/README.md) for arguments."
+  type        = list(any)
+  default     = null
 }
-
 
 variable "environments" {
   description = "(Optional) The list of environments configuration of the repository (key: environment_name)"

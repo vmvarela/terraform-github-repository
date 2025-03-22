@@ -329,18 +329,6 @@ resource "github_repository_environment_deployment_policy" "this" {
   branch_pattern = each.value.branch_pattern
 }
 
-# repository_file
-resource "github_repository_file" "this" {
-  for_each       = var.files != null ? var.files : {}
-  repository     = github_repository.this.name
-  file           = each.key
-  content        = each.value.from_file != null ? file(each.value.from_file) : each.value.content
-  branch         = each.value.branch
-  commit_author  = each.value.commit_author
-  commit_email   = each.value.commit_email
-  commit_message = each.value.commit_message
-}
-
 # repository_ruleset
 resource "github_repository_ruleset" "this" {
   for_each    = var.rulesets != null ? var.rulesets : {}

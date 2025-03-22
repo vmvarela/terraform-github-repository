@@ -20,4 +20,14 @@ module "repo" {
       content_type = "form"
     }
   ]
+  files = [
+    {
+      file                = ".gitignore"
+      content             = "**/*.tfstate"
+      commit_message      = "Managed by Terraform"
+      commit_author       = "Terraform User"
+      commit_email        = "terraform@example.com"
+      overwrite_on_create = true
+    }
+  ]
 }
