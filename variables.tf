@@ -477,7 +477,7 @@ variable "rulesets" {
 }
 
 variable "webhooks" {
-  description = "(Optional) The list of webhooks of the repository"
+  description = "(Optional) The list of webhooks of the repository. See [webhook module](./modules/webhook/README.md) for arguments."
   type        = list(any)
   default     = null
 }

@@ -156,7 +156,7 @@ module "repo" {
 | <a name="input_variables"></a> [variables](#input\_variables) | (Optional) The list of variables configuration of the repository (key: variable\_name) | `map(string)` | `null` | no |
 | <a name="input_visibility"></a> [visibility](#input\_visibility) | (Optional) Can be `public` or `private` (or `internal` if your organization is associated with an enterprise account using GitHub Enterprise Cloud or GitHub Enterprise Server 2.20+). The visibility parameter overrides the `private` parameter. | `string` | `null` | no |
 | <a name="input_web_commit_signoff_required"></a> [web\_commit\_signoff\_required](#input\_web\_commit\_signoff\_required) | (Optional) Require contributors to sign off on web-based commits. See more here. Defaults to `false` | `bool` | `null` | no |
-| <a name="input_webhooks"></a> [webhooks](#input\_webhooks) | (Optional) The list of webhooks of the repository | `list(any)` | `null` | no |
+| <a name="input_webhooks"></a> [webhooks](#input\_webhooks) | (Optional) The list of webhooks of the repository. See [webhook module](./modules/webhook/README.md) for arguments. | `list(any)` | `null` | no |
 
 ## Outputs
 
