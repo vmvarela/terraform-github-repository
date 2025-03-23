@@ -4,10 +4,11 @@
       "dockerfile": "Dockerfile"
     },
     "runArgs": [
-      "--platform=linux/amd64"
+      "--platform=linux/amd64",
+      "--hostname=devcontainer"
     ],
     "remoteUser": "root",
-    "initializeCommand": "mkdir -p ${HOME}/.config ${HOME}/.ssh",
+    "initializeCommand": "mkdir -p ${HOME}/.config ${HOME}/.ssh; chmod 700 ${HOME}/.ssh",
     "mounts": [
       "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
       "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config,target=/root/.config,type=bind,consistency=cached"
@@ -21,7 +22,7 @@
             "matheusq94.TFS"
         ],
         "settings": {
-          "terminal.integrated.defaultProfile.linux": "zsh"
+          "terminal.integrated.defaultProfile.linux": "fish"
         }
       }
     }

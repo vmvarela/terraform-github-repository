@@ -7,12 +7,6 @@ locals {
   enable_secret_scanning                 = var.enable_secret_scanning == true && local.allowed_scanning
   enable_secret_scanning_push_protection = var.enable_secret_scanning_push_protection == true && local.allowed_scanning
 
-  repository_roles = {
-    "maintain" = 2
-    "write"    = 4
-    "admin"    = 5
-  }
-
   custom_properties = var.custom_properties == null ? {} : { for i in [
     for n, a in var.custom_properties : {
       property = n

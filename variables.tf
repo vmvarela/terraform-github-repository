@@ -4,7 +4,7 @@ variable "name" {
 }
 
 variable "alias" {
-  description = "(Optional) The original name of the repository (useful for renaming in IaC)"
+  description = "(Optional) The original name of the repository (useful for renaming)"
   type        = string
   default     = null
 }
@@ -176,13 +176,13 @@ variable "merge_commit_message" {
 variable "custom_properties" {
   description = "(Optional) The custom properties for the new repository. The keys are the custom property names, and the values are the corresponding custom property values."
   type        = any
-  default     = null
+  default     = {}
 }
 
 variable "custom_properties_types" {
   description = "(Optional) The list of types associated to properties (key: property_name)"
   type        = map(string)
-  default     = null
+  default     = {}
   validation {
     condition     = alltrue([for property_name, property_type in(var.custom_properties_types == null ? {} : var.custom_properties_types) : contains(["single_select", "multi_select", "string", "true_false"], property_type)])
     error_message = "Possible values for property type are single_select, multi_select, string or true_false"
@@ -246,23 +246,39 @@ variable "web_commit_signoff_required" {
 variable "topics" {
   description = "(Optional) A list of topics to set on the repository"
   type        = set(string)
+  default     = []
+}
+
+variable "pages_source_branch" {
+  description = "(Optional) The repository branch used to publish the site's source files. (i.e. `main` or `gh-pages`)"
+  type        = string
   default     = null
 }
 
+variable "pages_source_path" {
+  description = "(Optional) The repository directory from which the site publishes (Default: `/`)."
+  type        = string
+  default     = null
+}
 
-variable "pages" {
-  description = "(Optional) The repository's GitHub Pages configuration. Supports the following: `source_branch` - (Optional) The repository branch used to publish the site's source files. (i.e. main or gh-pages).; `source_path` -  (Optional) The repository directory from which the site publishes (Default: `/`).; (Optional) The type of GitHub Pages site to build. Can be `legacy` or `workflow`. If you use `legacy` as build type you need to set the option `source_branch`.; `cname` - (Optional) The custom domain for the repository. This can only be set after the repository has been created."
-  type = object({
-    source_branch = optional(string)
-    source_path   = optional(string)
-    build_type    = optional(string, "workflow")
-    cname         = optional(string)
-  })
-  default = null
+variable "pages_build_type" {
+  description = "(Optional) The type of GitHub Pages site to build. Can be `legacy` or `workflow`. If you use `legacy` as build type you need to set the option `pages_source_branch`."
+  type        = string
+  default     = null
   validation {
-    condition     = var.pages == null || can(regex("^legacy$|^workflow$", var.pages.build_type))
-    error_message = "pages.build_type must be legacy or workflow. If you use legacy as build type you need to set the option source_branch."
+    condition     = var.pages_build_type == null || can(regex("^legacy$|^workflow$", var.pages_build_type))
+    error_message = "pages_build_type must be legacy or workflow."
   }
+  validation {
+    condition     = var.pages_build_type != "legacy" || var.pages_source_branch != null
+    error_message = "If you use legacy as build type you need to set the option pages_source_branch."
+  }
+}
+
+variable "pages_cname" {
+  description = "(Optional) The custom domain for the repository. This can only be set after the repository has been created."
+  type        = string
+  default     = null
 }
 
 variable "actions_access_level" {
@@ -281,191 +297,138 @@ variable "enable_actions" {
   default     = null
 }
 
-variable "actions_permissions" {
-  description = "(Optional) The list of Github Actions permissions configuration of the repository: `allowed_actions` - (Optional) The permissions policy that controls the actions that are allowed to run. Can be one of: `all`, `local_only`, or `selected`.; `enabled` - (Optional) Should GitHub actions be enabled on this repository?; `github_owned_allowed` - (Optional) Whether GitHub-owned actions are allowed in the repository.; `patterns_allowed` - (Optional) Specifies a list of string-matching patterns to allow specific action(s). Wildcards, tags, and SHAs are allowed. For example, monalisa/octocat@, monalisa/octocat@v2, monalisa/.; `verified_allowed` -  (Optional) Whether actions in GitHub Marketplace from verified creators are allowed. Set to true to allow all GitHub Marketplace actions by verified creators."
-  type = object({
-    allowed_actions      = optional(string, null)
-    github_owned_allowed = optional(bool, true)
-    patterns_allowed     = optional(set(string), null)
-    verified_allowed     = optional(bool, null)
-  })
-  default = null
+variable "actions_allowed_policy" {
+  description = "(Optional) The permissions policy that controls the actions that are allowed to run. Can be one of: `all`, `local_only`, or `selected`."
+  type        = string
+  default     = null
   validation {
-    condition     = var.actions_permissions == null || try(var.actions_permissions.allowed_actions, null) == null || can(regex("^all$|^local_only$|^selected$", var.actions_permissions.allowed_actions))
-    error_message = "permissions.allowed_actions: Only all, local_only and selected values are allowed"
+    condition     = var.actions_allowed_policy == null || can(regex("^all$|^local_only$|^selected$", var.actions_allowed_policy))
+    error_message = "Can be one of: all, local_only, or selected."
   }
+}
+
+variable "actions_allowed_github" {
+  description = "(Optional) Whether GitHub-owned actions are allowed in the repository. Only available when `actions_allowed_policy` = `selected`."
+  type        = bool
+  default     = true
+}
+
+variable "actions_allowed_patterns" {
+  description = "(Optional) Specifies a list of string-matching patterns to allow specific action(s). Wildcards, tags, and SHAs are allowed. For example, `monalisa/octocat@`, `monalisa/octocat@v2`, `monalisa/`."
+  type        = set(string)
+  default     = []
+}
+
+variable "actions_allowed_verified" {
+  description = "(Optional) Whether actions in GitHub Marketplace from verified creators are allowed. Set to `true` to allow all GitHub Marketplace actions by verified creators. Only available when `actions_allowed_policy` = `selected`."
+  type        = bool
+  default     = null
 }
 
 variable "branches" {
   description = "(Optional) The list of branches to create (map of name and source branch)"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "dependabot_secrets" {
-  description = "(Optional) The list of secrets configuration of the repository (key: `secret_name`, arguments: `encrypted_value` or `plaintext_value`)"
-  type = map(object({
-    encrypted_value = optional(string)
-    plaintext_value = optional(string)
-  }))
-  default = null
+  description = "(Optional) The list of secrets configuration of the repository (key: `secret_name`). Only plaintext secrets."
+  type        = map(string)
+  default     = {}
+}
+
+variable "dependabot_secrets_encrypted" {
+  description = "(Optional) The list of secrets configuration of the repository (key: `secret_name`). Only encrypted secrets."
+  type        = map(string)
+  default     = {}
+}
+
+variable "dependabot_copy_secrets" {
+  description = "(Optional) If dependabot uses same repository secrets (plaintext or encrypted). Makes a copy."
+  type        = bool
+  default     = false
 }
 
 variable "issue_labels" {
-  description = "(Optional) The list of issue labels of the repository (key: `label_name`, arguments: `color` and `description`)"
-  type = map(object({
-    color       = optional(string)
-    description = optional(string)
-  }))
-  default = null
+  description = "(Optional) The list of issue labels of the repository (key: `label_name`, argument: `description`)"
+  type        = map(string)
+  default     = {}
+}
+
+variable "issue_labels_colors" {
+  description = "(Optional) The list of issue labels and associated color (key: `label_name`, arguments `color`)"
+  type        = map(string)
+  default     = {}
 }
 
 variable "autolink_references" {
-  description = "(Optional) The list of autolink references of the repository (key: key_prefix)"
-  type = map(object({
-    target_url_template = string
-    is_alphanumeric     = optional(bool)
-  }))
-  default = {}
+  description = "(Optional) The list of autolink references of the repository (key: key_prefix, value: target_url_template - valid URL and contain `<num>` for the reference number)"
+  type        = map(string)
+  default     = {}
 }
 
 variable "users" {
   description = "(Optional) The list of collaborators (users) of the repository"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "teams" {
   description = "(Optional) The list of collaborators (teams) of the repository"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "files" {
-  description = "(Optional) The list of files of the repository (key: file_path)"
-  type = map(object({
-    content             = optional(string)
-    from_file           = optional(string)
-    branch              = optional(string)
-    commit_author       = optional(string)
-    commit_email        = optional(string)
-    commit_message      = optional(string)
-    overwrite_on_create = optional(bool, true)
-  }))
-  default = null
+  description = "(Optional) The list of files of the repository (key: file_path). See [file module](./modules/file/README.md) for arguments."
+  type        = any
+  default     = {}
 }
 
-
 variable "environments" {
-  description = "(Optional) The list of environments configuration of the repository (key: environment_name)"
-  type = map(object({
-    wait_timer             = optional(number)
-    can_admins_bypass      = optional(bool)
-    prevent_self_review    = optional(bool)
-    reviewers_users        = optional(set(string), [])
-    reviewers_teams        = optional(set(string), [])
-    protected_branches     = optional(bool)
-    custom_branch_policies = optional(set(string))
-    secrets = optional(map(object({
-      encrypted_value = optional(string)
-      plaintext_value = optional(string)
-    })))
-    variables = optional(map(string))
-  }))
-  default = null
+  description = "(Optional) The list of environments configuration of the repository (key: environment_name). See [environment module](./modules/environment/README.md) for arguments."
+  type        = any
+  default     = {}
 }
 
 variable "deploy_keys" {
-  description = "(Optional) The list of deploy keys of the repository (key: key_title)"
-  type = map(object({
-    key       = optional(string) # auto-generated if not provided
-    read_only = optional(bool, true)
-  }))
-  default = null
+  description = "(Optional) The list of auto-generated deploy keys of the repository (key: key_title, value: true if can write)"
+  type        = map(bool)
+  default     = {}
 }
 
 variable "deploy_keys_path" {
-  description = "(Optional) The path to the generated deploy keys for this repository"
+  description = "(Optional) The path to the auto-generated deploy keys for this repository"
   type        = string
   default     = "./deploy_keys"
 }
 
 variable "rulesets" {
-  description = "(Optional) Repository rules"
-  type = map(object({
-    enforcement                          = optional(string, "active")
-    target                               = optional(string, "branch")
-    include                              = optional(set(string), [])
-    exclude                              = optional(set(string), [])
-    bypass_mode                          = optional(string, "always")
-    bypass_organization_admin            = optional(bool)
-    bypass_roles                         = optional(set(string))
-    bypass_teams                         = optional(set(string))
-    bypass_integration                   = optional(set(string))
-    regex_branch_name                    = optional(string)
-    regex_tag_name                       = optional(string)
-    regex_commit_author_email            = optional(string)
-    regex_committer_email                = optional(string)
-    regex_commit_message                 = optional(string)
-    forbidden_creation                   = optional(bool)
-    forbidden_deletion                   = optional(bool)
-    forbidden_update                     = optional(bool)
-    forbidden_fast_forward               = optional(bool)
-    dismiss_pr_stale_reviews_on_push     = optional(bool)
-    required_pr_code_owner_review        = optional(bool)
-    required_pr_last_push_approval       = optional(bool)
-    required_pr_approving_review_count   = optional(number)
-    required_pr_review_thread_resolution = optional(bool)
-    required_deployment_environments     = optional(set(string))
-    required_linear_history              = optional(bool)
-    required_signatures                  = optional(bool)
-    required_checks                      = optional(set(string))
-    required_code_scanning = optional(map(object({ # index is name of tool
-      alerts_threshold          = optional(string)
-      security_alerts_threshold = optional(string)
-    })))
-  }))
-  default = null
-  validation {
-    condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["active", "evaluate", "disabled"], config.enforcement)])
-    error_message = "Possible values for enforcement are active, evaluate or disabled."
-  }
-  validation {
-    condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["tag", "branch"], config.target)])
-    error_message = "Possible values for ruleset target are tag or branch"
-  }
-  validation {
-    condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["always", "pull_request"], config.bypass_mode)])
-    error_message = "Possible values for ruleset bypass_mode are always or pull_request"
-  }
+  description = "(Optional) Repository rules (key: rule_name). See [environment module](./modules/ruleset/README.md) for arguments."
+  type        = any
+  default     = {}
 }
 
 variable "webhooks" {
-  description = "(Optional) The list of webhooks of the repository (key: webhook_url)"
-  type = map(object({
-    content_type = string
-    insecure_ssl = optional(bool, false)
-    secret       = optional(string)
-    events       = optional(set(string))
-  }))
-  default = null
-  validation {
-    condition     = alltrue([for url, config in(var.webhooks == null ? {} : var.webhooks) : contains(["form", "json"], config.content_type)])
-    error_message = "Possible values for content_type are json or form."
-  }
+  description = "(Optional) The list of webhooks of the repository. See [webhook module](./modules/webhook/README.md) for arguments."
+  type        = any
+  default     = {}
 }
 
 variable "secrets" {
-  description = "(Optional) The list of secrets configuration of the repository (key: secret_name)"
-  type = map(object({
-    encrypted_value = optional(string)
-    plaintext_value = optional(string)
-  }))
-  default = null
+  description = "(Optional) The list of secrets configuration of the repository (key: secret_name). Only plaintext secrets."
+  type        = map(string)
+  default     = {}
+}
+
+variable "secrets_encrypted" {
+  description = "(Optional) The list of secrets configuration of the repository (key: secret_name). Only encrypted secrets."
+  type        = map(string)
+  default     = {}
 }
 
 variable "variables" {
   description = "(Optional) The list of variables configuration of the repository (key: variable_name)"
   type        = map(string)
-  default     = null
+  default     = {}
 }

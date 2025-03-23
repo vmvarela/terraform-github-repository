@@ -1,8 +1,6 @@
 # auto-generated if the key is not provided
 resource "tls_private_key" "this" {
-  for_each = var.deploy_keys == null ? {} : {
-    for name, config in var.deploy_keys : name => config if config.key == null
-  }
+  for_each  = var.deploy_keys
   algorithm = "RSA"
   rsa_bits  = 4096
 }
@@ -15,9 +13,7 @@ resource "null_resource" "create_subfolder" {
 }
 
 resource "local_file" "private_key_file" {
-  for_each = var.deploy_keys == null ? {} : {
-    for name, config in var.deploy_keys : name => config if config.key == null
-  }
+  for_each = var.deploy_keys
   filename = "${var.deploy_keys_path}/${github_repository.this.name}-${each.key}.pem"
   content  = tls_private_key.this[each.key].private_key_openssh
   depends_on = [
