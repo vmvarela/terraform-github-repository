@@ -53,6 +53,22 @@ variables {
       }
     }
   }
+
+  rulesets = {
+    "test" = {
+      target                             = "branch"
+      exclude                            = ["feature/*", "hotfix/*", "release/*"]
+      bypass_roles                       = ["admin", "write"]
+      forbidden_creation                 = true
+      required_pr_approving_review_count = 2
+    },
+    "test-2" = {
+      target             = "tag"
+      include            = ["~ALL"]
+      forbidden_deletion = true
+    }
+  }
+
 }
 
 run "repository_creation" {

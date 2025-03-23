@@ -410,53 +410,9 @@ variable "deploy_keys_path" {
 }
 
 variable "rulesets" {
-  description = "(Optional) Repository rules"
-  type = map(object({
-    enforcement                          = optional(string, "active")
-    target                               = optional(string, "branch")
-    include                              = optional(set(string), [])
-    exclude                              = optional(set(string), [])
-    bypass_mode                          = optional(string, "always")
-    bypass_organization_admin            = optional(bool)
-    bypass_roles                         = optional(set(string))
-    bypass_teams                         = optional(set(string))
-    bypass_integration                   = optional(set(string))
-    regex_branch_name                    = optional(string)
-    regex_tag_name                       = optional(string)
-    regex_commit_author_email            = optional(string)
-    regex_committer_email                = optional(string)
-    regex_commit_message                 = optional(string)
-    forbidden_creation                   = optional(bool)
-    forbidden_deletion                   = optional(bool)
-    forbidden_update                     = optional(bool)
-    forbidden_fast_forward               = optional(bool)
-    dismiss_pr_stale_reviews_on_push     = optional(bool)
-    required_pr_code_owner_review        = optional(bool)
-    required_pr_last_push_approval       = optional(bool)
-    required_pr_approving_review_count   = optional(number)
-    required_pr_review_thread_resolution = optional(bool)
-    required_deployment_environments     = optional(set(string))
-    required_linear_history              = optional(bool)
-    required_signatures                  = optional(bool)
-    required_checks                      = optional(set(string))
-    required_code_scanning = optional(map(object({ # index is name of tool
-      alerts_threshold          = optional(string)
-      security_alerts_threshold = optional(string)
-    })))
-  }))
-  default = {}
-  validation {
-    condition     = alltrue([for name, config in var.rulesets : contains(["active", "evaluate", "disabled"], config.enforcement)])
-    error_message = "Possible values for enforcement are active, evaluate or disabled."
-  }
-  validation {
-    condition     = alltrue([for name, config in var.rulesets : contains(["tag", "branch"], config.target)])
-    error_message = "Possible values for ruleset target are tag or branch"
-  }
-  validation {
-    condition     = alltrue([for name, config in var.rulesets : contains(["always", "pull_request"], config.bypass_mode)])
-    error_message = "Possible values for ruleset bypass_mode are always or pull_request"
-  }
+  description = "(Optional) Repository rules (key: rule_name). See [environment module](./modules/ruleset/README.md) for arguments."
+  type        = any
+  default     = {}
 }
 
 variable "webhooks" {
