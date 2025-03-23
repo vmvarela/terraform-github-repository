@@ -18,6 +18,13 @@ module "repo" {
       url          = "https://www.google.es"
       events       = ["issues"]
       content_type = "form"
+    },
+    {
+      url          = "https://microsoft.com"
+      events       = ["check_run"]
+      content_type = "json"
+      secret       = "xxx"
+      insecure_ssl = true
     }
   ]
   files = [
@@ -37,6 +44,11 @@ module "repo" {
     "simple-env" = {
       variables = {
         "VAR" = "VAL"
+      }
+    }
+    "other-env" = {
+      secrets = {
+        "SECRET" = "VAL"
       }
     }
   }

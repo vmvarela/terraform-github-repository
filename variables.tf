@@ -176,13 +176,13 @@ variable "merge_commit_message" {
 variable "custom_properties" {
   description = "(Optional) The custom properties for the new repository. The keys are the custom property names, and the values are the corresponding custom property values."
   type        = any
-  default     = null
+  default     = {}
 }
 
 variable "custom_properties_types" {
   description = "(Optional) The list of types associated to properties (key: property_name)"
   type        = map(string)
-  default     = null
+  default     = {}
   validation {
     condition     = alltrue([for property_name, property_type in(var.custom_properties_types == null ? {} : var.custom_properties_types) : contains(["single_select", "multi_select", "string", "true_false"], property_type)])
     error_message = "Possible values for property type are single_select, multi_select, string or true_false"
@@ -246,7 +246,7 @@ variable "web_commit_signoff_required" {
 variable "topics" {
   description = "(Optional) A list of topics to set on the repository"
   type        = set(string)
-  default     = null
+  default     = []
 }
 
 variable "pages_source_branch" {
@@ -316,7 +316,7 @@ variable "actions_allowed_github" {
 variable "actions_allowed_patterns" {
   description = "(Optional) Specifies a list of string-matching patterns to allow specific action(s). Wildcards, tags, and SHAs are allowed. For example, `monalisa/octocat@`, `monalisa/octocat@v2`, `monalisa/`."
   type        = set(string)
-  default     = null
+  default     = []
 }
 
 variable "actions_allowed_verified" {
@@ -328,19 +328,19 @@ variable "actions_allowed_verified" {
 variable "branches" {
   description = "(Optional) The list of branches to create (map of name and source branch)"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "dependabot_secrets" {
   description = "(Optional) The list of secrets configuration of the repository (key: `secret_name`). Only plaintext secrets."
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "dependabot_secrets_encrypted" {
   description = "(Optional) The list of secrets configuration of the repository (key: `secret_name`). Only encrypted secrets."
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "dependabot_copy_secrets" {
@@ -352,13 +352,13 @@ variable "dependabot_copy_secrets" {
 variable "issue_labels" {
   description = "(Optional) The list of issue labels of the repository (key: `label_name`, argument: `description`)"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "issue_labels_colors" {
   description = "(Optional) The list of issue labels and associated color (key: `label_name`, arguments `color`)"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "autolink_references" {
@@ -373,25 +373,25 @@ variable "autolink_references" {
 variable "users" {
   description = "(Optional) The list of collaborators (users) of the repository"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "teams" {
   description = "(Optional) The list of collaborators (teams) of the repository"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "files" {
   description = "(Optional) The list of files of the repository (key: file_path). See [file module](./modules/file/README.md) for arguments."
-  type        = list(any)
-  default     = null
+  type        = any
+  default     = {}
 }
 
 variable "environments" {
   description = "(Optional) The list of environments configuration of the repository (key: environment_name). See [environment module](./modules/environment/README.md) for arguments."
   type        = any
-  default     = null
+  default     = {}
 }
 
 variable "deploy_keys" {
@@ -400,7 +400,7 @@ variable "deploy_keys" {
     key       = optional(string) # auto-generated if not provided
     read_only = optional(bool, true)
   }))
-  default = null
+  default = {}
 }
 
 variable "deploy_keys_path" {
@@ -444,41 +444,41 @@ variable "rulesets" {
       security_alerts_threshold = optional(string)
     })))
   }))
-  default = null
+  default = {}
   validation {
-    condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["active", "evaluate", "disabled"], config.enforcement)])
+    condition     = alltrue([for name, config in var.rulesets : contains(["active", "evaluate", "disabled"], config.enforcement)])
     error_message = "Possible values for enforcement are active, evaluate or disabled."
   }
   validation {
-    condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["tag", "branch"], config.target)])
+    condition     = alltrue([for name, config in var.rulesets : contains(["tag", "branch"], config.target)])
     error_message = "Possible values for ruleset target are tag or branch"
   }
   validation {
-    condition     = alltrue([for name, config in(var.rulesets == null ? {} : var.rulesets) : contains(["always", "pull_request"], config.bypass_mode)])
+    condition     = alltrue([for name, config in var.rulesets : contains(["always", "pull_request"], config.bypass_mode)])
     error_message = "Possible values for ruleset bypass_mode are always or pull_request"
   }
 }
 
 variable "webhooks" {
   description = "(Optional) The list of webhooks of the repository. See [webhook module](./modules/webhook/README.md) for arguments."
-  type        = list(any)
-  default     = null
+  type        = any
+  default     = {}
 }
 
 variable "secrets" {
   description = "(Optional) The list of secrets configuration of the repository (key: secret_name). Only plaintext secrets."
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "secrets_encrypted" {
   description = "(Optional) The list of secrets configuration of the repository (key: secret_name). Only encrypted secrets."
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "variables" {
   description = "(Optional) The list of variables configuration of the repository (key: variable_name)"
   type        = map(string)
-  default     = null
+  default     = {}
 }

@@ -47,23 +47,23 @@ variable "protected_branches" {
 variable "custom_branch_policies" {
   description = "(Required) Whether only branches that match the specified name patterns can deploy to this environment."
   type        = set(string)
-  default     = null
+  default     = []
 }
 
 variable "secrets" {
   description = "(Optional)"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "secrets_encrypted" {
   description = "(Optional)"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "variables" {
   description = "(Optional)"
   type        = map(string)
-  default     = null
+  default     = {}
 }

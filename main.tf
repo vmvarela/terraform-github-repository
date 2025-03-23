@@ -8,10 +8,10 @@ resource "github_actions_repository_access_level" "this" {
 
 # actions_repository_permissions
 resource "github_actions_repository_permissions" "this" {
-  count           = (var.enable_actions != null || try(var.actions_allowed_policy, null) != null) ? 1 : 0
+  count           = (var.enable_actions != null || var.actions_allowed_policy != null) ? 1 : 0
   repository      = github_repository.this.name
   enabled         = var.enable_actions
-  allowed_actions = var.enable_actions == false ? null : try(var.actions_allowed_policy, "all")
+  allowed_actions = var.enable_actions == false ? null : var.actions_allowed_policy
   dynamic "allowed_actions_config" {
     for_each = (var.enable_actions == false ? null : var.actions_allowed_policy) == "selected" ? [1] : []
     content {
@@ -24,7 +24,7 @@ resource "github_actions_repository_permissions" "this" {
 
 # actions_secret (plaintext)
 resource "github_actions_secret" "plaintext" {
-  for_each        = var.secrets != null ? var.secrets : {}
+  for_each        = var.secrets
   repository      = github_repository.this.name
   secret_name     = each.key
   plaintext_value = each.value
@@ -32,7 +32,7 @@ resource "github_actions_secret" "plaintext" {
 
 # actions_secret (encrypted)
 resource "github_actions_secret" "encrypted" {
-  for_each        = var.secrets_encrypted != null ? var.secrets_encrypted : {}
+  for_each        = var.secrets_encrypted
   repository      = github_repository.this.name
   secret_name     = each.key
   encrypted_value = each.value
@@ -40,7 +40,7 @@ resource "github_actions_secret" "encrypted" {
 
 # actions_variable
 resource "github_actions_variable" "this" {
-  for_each      = var.variables != null ? var.variables : {}
+  for_each      = var.variables
   repository    = github_repository.this.name
   variable_name = each.key
   value         = each.value
@@ -48,7 +48,7 @@ resource "github_actions_variable" "this" {
 
 # branch
 resource "github_branch" "this" {
-  for_each   = var.branches == null ? {} : var.branches
+  for_each   = var.branches
   repository = github_repository.this.name
   branch     = each.key
   # If each.value does not start with "sha:", set source_branch to each.value, otherwise set it to null
@@ -65,7 +65,7 @@ resource "github_branch_default" "this" {
 
 # dependabot_secret (plaintext)
 resource "github_dependabot_secret" "plaintext" {
-  for_each        = var.dependabot_secrets != null ? var.dependabot_secrets : (var.dependabot_copy_secrets ? var.secrets : {})
+  for_each        = var.dependabot_secrets != null ? var.dependabot_secrets : (var.dependabot_copy_secrets ? var.secrets : null)
   repository      = github_repository.this.name
   secret_name     = each.key
   plaintext_value = each.value
@@ -73,7 +73,7 @@ resource "github_dependabot_secret" "plaintext" {
 
 # dependabot_secret (encrypted)
 resource "github_dependabot_secret" "encrypted" {
-  for_each        = var.dependabot_secrets_encrypted != null ? var.dependabot_secrets_encrypted : (var.dependabot_copy_secrets ? var.secrets_encrypted : {})
+  for_each        = var.dependabot_secrets_encrypted != null ? var.dependabot_secrets_encrypted : (var.dependabot_copy_secrets ? var.secrets_encrypted : null)
   repository      = github_repository.this.name
   secret_name     = each.key
   encrypted_value = each.value
@@ -176,7 +176,7 @@ resource "github_repository" "this" {
 
 # repository_autolink_reference
 resource "github_repository_autolink_reference" "this" {
-  for_each            = var.autolink_references != null ? var.autolink_references : {}
+  for_each            = var.autolink_references
   repository          = github_repository.this.name
   key_prefix          = each.key
   target_url_template = each.value.target_url_template
@@ -188,14 +188,14 @@ resource "github_repository_collaborators" "this" {
   count      = (var.teams != null || var.users != null) ? 1 : 0
   repository = github_repository.this.name
   dynamic "user" {
-    for_each = try(var.users, null) != null ? var.users : {}
+    for_each = var.users
     content {
       permission = user.value
       username   = user.key
     }
   }
   dynamic "team" {
-    for_each = try(var.teams, null) != null ? var.teams : {}
+    for_each = var.teams
     content {
       permission = team.value
       team_id    = team.key
@@ -221,7 +221,7 @@ resource "github_repository_dependabot_security_updates" "this" {
 
 # repository_deploy_key
 resource "github_repository_deploy_key" "this" {
-  for_each   = var.deploy_keys != null ? var.deploy_keys : {}
+  for_each   = var.deploy_keys
   repository = github_repository.this.name
   title      = each.key
   key        = each.value.key != null ? each.value.key : tls_private_key.this[each.key].public_key_openssh
@@ -230,7 +230,7 @@ resource "github_repository_deploy_key" "this" {
 
 # repository_ruleset
 resource "github_repository_ruleset" "this" {
-  for_each    = var.rulesets != null ? var.rulesets : {}
+  for_each    = var.rulesets
   repository  = github_repository.this.name
   name        = each.key
   enforcement = each.value.enforcement
@@ -251,7 +251,7 @@ resource "github_repository_ruleset" "this" {
   }
 
   dynamic "bypass_actors" {
-    for_each = (each.value.bypass_roles != null) ? each.value.bypass_roles : []
+    for_each = each.value.bypass_roles
     content {
       actor_type  = "RepositoryRole"
       actor_id    = lookup(local.repository_roles, bypass_actors.value, null)
@@ -259,7 +259,7 @@ resource "github_repository_ruleset" "this" {
     }
   }
   dynamic "bypass_actors" {
-    for_each = (each.value.bypass_teams != null) ? each.value.bypass_teams : []
+    for_each = each.value.bypass_teams
     content {
       actor_type  = "Team"
       actor_id    = bypass_actors.value
@@ -267,7 +267,7 @@ resource "github_repository_ruleset" "this" {
     }
   }
   dynamic "bypass_actors" {
-    for_each = (each.value.bypass_integration != null) ? each.value.bypass_integration : []
+    for_each = each.value.bypass_integration
     content {
       actor_type  = "Integration"
       actor_id    = bypass_actors.value
@@ -285,35 +285,35 @@ resource "github_repository_ruleset" "this" {
 
   rules {
     dynamic "branch_name_pattern" {
-      for_each = try(each.value.regex_branch_name, null) != null ? [1] : []
+      for_each = each.value.regex_branch_name != null ? [1] : []
       content {
         operator = "regex"
         pattern  = each.value.regex_branch_name
       }
     }
     dynamic "tag_name_pattern" {
-      for_each = try(each.value.regex_tag_name, null) != null ? [1] : []
+      for_each = each.value.regex_tag_name != null ? [1] : []
       content {
         operator = "regex"
         pattern  = each.value.regex_tag_name
       }
     }
     dynamic "commit_author_email_pattern" {
-      for_each = try(each.value.regex_commit_author_email, null) != null ? [1] : []
+      for_each = each.value.regex_commit_author_email != null ? [1] : []
       content {
         operator = "regex"
         pattern  = each.value.each.value.regex_commit_author_email
       }
     }
     dynamic "commit_message_pattern" {
-      for_each = try(each.value.regex_commit_message, null) != null ? [1] : []
+      for_each = each.value.regex_commit_message != null ? [1] : []
       content {
         operator = "regex"
         pattern  = each.value.regex_commit_message
       }
     }
     dynamic "committer_email_pattern" {
-      for_each = try(each.value.regex_committer_email, null) != null ? [1] : []
+      for_each = each.value.regex_committer_email != null ? [1] : []
       content {
         operator = "regex"
         pattern  = each.value.regex_committer_email
@@ -336,7 +336,7 @@ resource "github_repository_ruleset" "this" {
       }
     }
     dynamic "required_deployments" {
-      for_each = (each.value.required_deployment_environments != null) ? [1] : []
+      for_each = each.value.required_deployment_environments != null ? [1] : []
       content {
         required_deployment_environments = each.value.required_deployment_environments
       }
@@ -344,7 +344,7 @@ resource "github_repository_ruleset" "this" {
     required_linear_history = each.value.required_linear_history
     required_signatures     = each.value.required_signatures
     dynamic "required_status_checks" {
-      for_each = (each.value.required_checks != null) ? [1] : []
+      for_each = each.value.required_checks != null ? [1] : []
       content {
         dynamic "required_check" {
           for_each = each.value.rules.required_status_checks

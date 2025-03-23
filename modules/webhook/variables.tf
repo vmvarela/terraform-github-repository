@@ -11,6 +11,7 @@ variable "url" {
 variable "events" {
   description = "(Required) A list of events which should trigger the webhook. See a list of [available events](https://docs.github.com/es/webhooks/webhook-events-and-payloads)."
   type        = set(string)
+  default     = []
 }
 
 variable "content_type" {

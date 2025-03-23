@@ -50,16 +50,16 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_can_admins_bypass"></a> [can\_admins\_bypass](#input\_can\_admins\_bypass) | (Optional) Can repository admins bypass the environment protections. Defaults to `true`. | `bool` | `true` | no |
-| <a name="input_custom_branch_policies"></a> [custom\_branch\_policies](#input\_custom\_branch\_policies) | (Required) Whether only branches that match the specified name patterns can deploy to this environment. | `set(string)` | `null` | no |
+| <a name="input_custom_branch_policies"></a> [custom\_branch\_policies](#input\_custom\_branch\_policies) | (Required) Whether only branches that match the specified name patterns can deploy to this environment. | `set(string)` | `[]` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | (Required) The name of the environment. | `string` | n/a | yes |
 | <a name="input_prevent_self_review"></a> [prevent\_self\_review](#input\_prevent\_self\_review) | (Optional) Whether or not a user who created the job is prevented from approving their own job. Defaults to `false`. | `bool` | `false` | no |
 | <a name="input_protected_branches"></a> [protected\_branches](#input\_protected\_branches) | (Optional) Whether only branches with branch protection rules can deploy to this environment. | `bool` | `null` | no |
 | <a name="input_repository"></a> [repository](#input\_repository) | (Required) The repository of the environment. | `string` | n/a | yes |
 | <a name="input_reviewers_teams"></a> [reviewers\_teams](#input\_reviewers\_teams) | (Optional) Up to 6 IDs for teams who may review jobs that reference the environment. Reviewers must have at least read access to the repository. Only one of the required reviewers needs to approve the job for it to proceed. | `set(string)` | `[]` | no |
 | <a name="input_reviewers_users"></a> [reviewers\_users](#input\_reviewers\_users) | (Optional) Up to 6 IDs for users who may review jobs that reference the environment. Reviewers must have at least read access to the repository. Only one of the required reviewers needs to approve the job for it to proceed. | `set(string)` | `[]` | no |
-| <a name="input_secrets"></a> [secrets](#input\_secrets) | (Optional) | `map(string)` | `null` | no |
-| <a name="input_secrets_encrypted"></a> [secrets\_encrypted](#input\_secrets\_encrypted) | (Optional) | `map(string)` | `null` | no |
-| <a name="input_variables"></a> [variables](#input\_variables) | (Optional) | `map(string)` | `null` | no |
+| <a name="input_secrets"></a> [secrets](#input\_secrets) | (Optional) | `map(string)` | `{}` | no |
+| <a name="input_secrets_encrypted"></a> [secrets\_encrypted](#input\_secrets\_encrypted) | (Optional) | `map(string)` | `{}` | no |
+| <a name="input_variables"></a> [variables](#input\_variables) | (Optional) | `map(string)` | `{}` | no |
 | <a name="input_wait_timer"></a> [wait\_timer](#input\_wait\_timer) | (Optional) Amount of time to delay a job after the job is initially triggered. | `number` | `null` | no |
 
 ## Outputs

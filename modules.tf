@@ -1,5 +1,5 @@
 module "environment" {
-  for_each               = var.environments != null ? var.environments : {}
+  for_each               = var.environments
   source                 = "./modules/environment"
   repository             = github_repository.this.name
   environment            = each.key
@@ -16,7 +16,7 @@ module "environment" {
 }
 
 module "file" {
-  for_each       = var.files != null ? { for f in var.files : sha1(format("%s:%s", try(f.branch, "_default_"), f.file)) => f } : {}
+  for_each       = { for f in var.files : sha1(format("%s:%s", try(f.branch, "_default_"), f.file)) => f }
   source         = "./modules/file"
   repository     = github_repository.this.name
   file           = each.value.file
@@ -29,12 +29,12 @@ module "file" {
 }
 
 module "webhook" {
-  for_each     = var.webhooks != null ? { for w in var.webhooks : sha1(w.url) => w } : {}
+  for_each     = { for w in var.webhooks : sha1(try(w.url, "_default_")) => w }
   source       = "./modules/webhook"
   repository   = github_repository.this.name
   url          = each.value.url
-  events       = each.value.events
-  content_type = each.value.content_type
-  insecure_ssl = try(each.value.insecure_ssl, null)
+  events       = try(each.value.events, [])
+  content_type = try(each.value.content_type, "form")
+  insecure_ssl = try(each.value.insecure_ssl, false)
   secret       = try(each.value.secret, null)
 }
