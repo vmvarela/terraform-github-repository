@@ -175,7 +175,7 @@ variable "merge_commit_message" {
 
 variable "custom_properties" {
   description = "(Optional) The custom properties for the new repository. The keys are the custom property names, and the values are the corresponding custom property values."
-  type        = map(any)
+  type        = any
   default     = null
 }
 
@@ -302,7 +302,7 @@ variable "actions_allowed_policy" {
   type        = string
   default     = null
   validation {
-    condition     = var.actions_access_level == null || can(regex("^all$|^local_only$|^selected$", var.actions_allowed_policy))
+    condition     = var.actions_allowed_policy == null || can(regex("^all$|^local_only$|^selected$", var.actions_allowed_policy))
     error_message = "Can be one of: all, local_only, or selected."
   }
 }
