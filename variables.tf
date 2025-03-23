@@ -395,16 +395,13 @@ variable "environments" {
 }
 
 variable "deploy_keys" {
-  description = "(Optional) The list of deploy keys of the repository (key: key_title)"
-  type = map(object({
-    key       = optional(string) # auto-generated if not provided
-    read_only = optional(bool, true)
-  }))
-  default = {}
+  description = "(Optional) The list of auto-generated deploy keys of the repository (key: key_title, value: true if can write)"
+  type        = map(bool)
+  default     = {}
 }
 
 variable "deploy_keys_path" {
-  description = "(Optional) The path to the generated deploy keys for this repository"
+  description = "(Optional) The path to the auto-generated deploy keys for this repository"
   type        = string
   default     = "./deploy_keys"
 }

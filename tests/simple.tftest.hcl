@@ -69,6 +69,10 @@ variables {
     }
   }
 
+  deploy_keys = {
+    "read-only-key" = false
+    "write-key"     = true
+  }
 }
 
 run "repository_creation" {

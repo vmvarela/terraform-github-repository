@@ -38,6 +38,5 @@ terraform.rc
 .env
 .act
 
-# Ignore example keys_pem folder
-keys_pem
+deploy_keys
 corp

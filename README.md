@@ -16,8 +16,7 @@ The module enables infrastructure-as-code practices for GitHub repositories, sup
 
 ```hcl
 module "repo" {
-  source = "github.com/vmvarela/terraform-github-repository"
-
+  source         = "github.com/vmvarela/terraform-github-repository"
   name           = "my-repo"
   visibility     = "private"
   default_branch = "main"
@@ -28,7 +27,6 @@ module "repo" {
 ## Examples
 
 - [simple](https://github.com/vmvarela/terraform-github-repository/tree/master/examples/simple) - Single repository from a template
-- [complete](https://github.com/vmvarela/terraform-github-repository/tree/master/examples/complete) - Several repositories (with configuration from a .yaml)
 
 
 <!-- BEGIN_TF_DOCS -->
@@ -111,8 +109,8 @@ module "repo" {
 | <a name="input_dependabot_copy_secrets"></a> [dependabot\_copy\_secrets](#input\_dependabot\_copy\_secrets) | (Optional) If dependabot uses same repository secrets (plaintext or encrypted). Makes a copy. | `bool` | `false` | no |
 | <a name="input_dependabot_secrets"></a> [dependabot\_secrets](#input\_dependabot\_secrets) | (Optional) The list of secrets configuration of the repository (key: `secret_name`). Only plaintext secrets. | `map(string)` | `{}` | no |
 | <a name="input_dependabot_secrets_encrypted"></a> [dependabot\_secrets\_encrypted](#input\_dependabot\_secrets\_encrypted) | (Optional) The list of secrets configuration of the repository (key: `secret_name`). Only encrypted secrets. | `map(string)` | `{}` | no |
-| <a name="input_deploy_keys"></a> [deploy\_keys](#input\_deploy\_keys) | (Optional) The list of deploy keys of the repository (key: key\_title) | <pre>map(object({<br/>    key       = optional(string) # auto-generated if not provided<br/>    read_only = optional(bool, true)<br/>  }))</pre> | `{}` | no |
-| <a name="input_deploy_keys_path"></a> [deploy\_keys\_path](#input\_deploy\_keys\_path) | (Optional) The path to the generated deploy keys for this repository | `string` | `"./deploy_keys"` | no |
+| <a name="input_deploy_keys"></a> [deploy\_keys](#input\_deploy\_keys) | (Optional) The list of auto-generated deploy keys of the repository (key: key\_title, value: true if can write) | `map(bool)` | `{}` | no |
+| <a name="input_deploy_keys_path"></a> [deploy\_keys\_path](#input\_deploy\_keys\_path) | (Optional) The path to the auto-generated deploy keys for this repository | `string` | `"./deploy_keys"` | no |
 | <a name="input_description"></a> [description](#input\_description) | (Optional) A short description of the repository that will show up on GitHub | `string` | `null` | no |
 | <a name="input_enable_actions"></a> [enable\_actions](#input\_enable\_actions) | (Optional) Either `true` to enable Github Actions, or `false` to disable. | `bool` | `null` | no |
 | <a name="input_enable_advanced_security"></a> [enable\_advanced\_security](#input\_enable\_advanced\_security) | (Optional) Use to enable or disable GitHub Advanced Security for this repository. | `bool` | `null` | no |

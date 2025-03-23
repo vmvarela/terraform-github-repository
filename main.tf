@@ -223,6 +223,6 @@ resource "github_repository_deploy_key" "this" {
   for_each   = var.deploy_keys
   repository = github_repository.this.name
   title      = each.key
-  key        = each.value.key != null ? each.value.key : tls_private_key.this[each.key].public_key_openssh
-  read_only  = each.value.read_only
+  key        = tls_private_key.this[each.key].public_key_openssh
+  read_only  = !each.value
 }
