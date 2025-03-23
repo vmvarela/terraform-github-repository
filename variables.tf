@@ -4,7 +4,7 @@ variable "name" {
 }
 
 variable "alias" {
-  description = "(Optional) The original name of the repository (useful for renaming in IaC)"
+  description = "(Optional) The original name of the repository (useful for renaming)"
   type        = string
   default     = null
 }
@@ -175,7 +175,7 @@ variable "merge_commit_message" {
 
 variable "custom_properties" {
   description = "(Optional) The custom properties for the new repository. The keys are the custom property names, and the values are the corresponding custom property values."
-  type        = any
+  type        = map(any)
   default     = null
 }
 
@@ -350,12 +350,15 @@ variable "dependabot_copy_secrets" {
 }
 
 variable "issue_labels" {
-  description = "(Optional) The list of issue labels of the repository (key: `label_name`, arguments: `color` and `description`)"
-  type = map(object({
-    color       = optional(string)
-    description = optional(string)
-  }))
-  default = null
+  description = "(Optional) The list of issue labels of the repository (key: `label_name`, argument: `description`)"
+  type        = map(string)
+  default     = null
+}
+
+variable "issue_labels_colors" {
+  description = "(Optional) The list of issue labels and associated color (key: `label_name`, arguments `color`)"
+  type        = map(string)
+  default     = null
 }
 
 variable "autolink_references" {

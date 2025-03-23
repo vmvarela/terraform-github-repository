@@ -41,6 +41,10 @@ variables {
       overwrite_on_create = true
     }
   ]
+
+  issue_labels = {
+    "good-first-issue" = "Good for begginners in this project"
+  }
 }
 
 run "repository_creation" {

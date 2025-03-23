@@ -30,4 +30,7 @@ module "repo" {
       overwrite_on_create = true
     }
   ]
+  issue_labels = {
+    "good-first-issue" = "Good for begginners in this project"
+  }
 }

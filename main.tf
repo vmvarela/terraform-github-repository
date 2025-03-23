@@ -147,8 +147,8 @@ resource "github_issue_labels" "this" {
     for_each = var.issue_labels
     content {
       name        = label.key
-      color       = label.value.color
-      description = label.value.description
+      color       = var.issue_labels_colors == null ? substr(sha256(label.key), 0, 6) : lookup(var.issue_labels_colors, label.key, substr(sha256(label.key), 0, 6))
+      description = label.value
     }
   }
 }
