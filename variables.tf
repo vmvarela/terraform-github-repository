@@ -362,12 +362,9 @@ variable "issue_labels_colors" {
 }
 
 variable "autolink_references" {
-  description = "(Optional) The list of autolink references of the repository (key: key_prefix)"
-  type = map(object({
-    target_url_template = string
-    is_alphanumeric     = optional(bool)
-  }))
-  default = {}
+  description = "(Optional) The list of autolink references of the repository (key: key_prefix, value: target_url_template - valid URL and contain `<num>` for the reference number)"
+  type        = map(string)
+  default     = {}
 }
 
 variable "users" {

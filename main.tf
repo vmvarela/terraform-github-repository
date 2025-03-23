@@ -178,8 +178,7 @@ resource "github_repository_autolink_reference" "this" {
   for_each            = var.autolink_references
   repository          = github_repository.this.name
   key_prefix          = each.key
-  target_url_template = each.value.target_url_template
-  is_alphanumeric     = each.value.is_alphanumeric
+  target_url_template = each.value
 }
 
 # repository_collaborators

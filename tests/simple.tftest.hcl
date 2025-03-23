@@ -73,6 +73,10 @@ variables {
     "read-only-key" = false
     "write-key"     = true
   }
+
+  autolink_references = {
+    "YT-" = "https://www.youtube.com/watch?v=<num>"
+  }
 }
 
 run "repository_creation" {
