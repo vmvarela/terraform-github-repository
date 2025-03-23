@@ -1,62 +1,3 @@
-# actions_environment_secret (plaintext)
-resource "github_actions_environment_secret" "plaintext" {
-  for_each = var.environments == null ? {} : {
-    for i in flatten([
-      for environment in keys(var.environments) : [
-        for secret in keys(var.environments[environment].secrets) : {
-          environment  = environment
-          secret_name  = secret
-          secret_value = var.environments[environment].secrets[secret]
-        }
-      ] if var.environments[environment].secrets != null
-    ])
-    : format("%s:%s", i.environment, i.secret_name) => i
-  }
-  repository      = github_repository.this.name
-  environment     = github_repository_environment.this[each.value.environment].environment
-  secret_name     = each.value.secret_name
-  plaintext_value = each.value.secret_value
-}
-
-# actions_environment_secret (encrypted)
-resource "github_actions_environment_secret" "encrypted" {
-  for_each = var.environments == null ? {} : {
-    for i in flatten([
-      for environment in keys(var.environments) : [
-        for secret in keys(var.environments[environment].secrets_encrypted) : {
-          environment  = environment
-          secret_name  = secret
-          secret_value = var.environments[environment].secrets_encrypted[secret]
-        }
-      ] if var.environments[environment].secrets != null
-    ])
-    : format("%s:%s", i.environment, i.secret_name) => i
-  }
-  repository      = github_repository.this.name
-  environment     = github_repository_environment.this[each.value.environment].environment
-  secret_name     = each.value.secret_name
-  encrypted_value = each.value.secret_value
-}
-
-# actions_environment_variable
-resource "github_actions_environment_variable" "this" {
-  for_each = var.environments == null ? {} : {
-    for i in flatten([
-      for environment in keys(var.environments) : [
-        for variable in keys(var.environments[environment].variables) : {
-          environment   = environment
-          variable_name = variable
-          value         = var.environments[environment].variables[variable]
-        }
-      ] if var.environments[environment].variables != null
-    ])
-    : format("%s:%s", i.environment, i.variable_name) => i
-  }
-  repository    = github_repository.this.name
-  environment   = github_repository_environment.this[each.value.environment].environment
-  variable_name = each.value.variable_name
-  value         = each.value.value
-}
 
 # actions_repository_access_level
 resource "github_actions_repository_access_level" "this" {
@@ -287,48 +228,6 @@ resource "github_repository_deploy_key" "this" {
   read_only  = each.value.read_only
 }
 
-# repository_environment
-resource "github_repository_environment" "this" {
-  for_each            = var.environments != null ? var.environments : {}
-  repository          = github_repository.this.name
-  environment         = each.key
-  wait_timer          = each.value.wait_timer
-  can_admins_bypass   = each.value.can_admins_bypass
-  prevent_self_review = each.value.prevent_self_review
-  dynamic "reviewers" {
-    for_each = (each.value.reviewers_teams != null || each.value.reviewers_users != null) ? [1] : []
-    content {
-      teams = each.value.reviewers_teams
-      users = each.value.reviewers_users
-    }
-  }
-  dynamic "deployment_branch_policy" {
-    for_each = (each.value.protected_branches != null || each.value.custom_branch_policies != null) ? [1] : []
-    content {
-      protected_branches     = each.value.custom_branch_policies == null ? each.value.protected_branches : false
-      custom_branch_policies = try(length(each.value.custom_branch_policies), 0) > 0
-    }
-  }
-}
-
-# repository_environment_deployment_policy
-resource "github_repository_environment_deployment_policy" "this" {
-  for_each = var.environments == null ? {} : {
-    for i in flatten([
-      for environment in keys(var.environments) : [
-        for branch_pattern in var.environments[environment].custom_branch_policies : {
-          environment    = environment
-          branch_pattern = branch_pattern
-        }
-      ] if var.environments[environment].custom_branch_policies != null
-    ])
-    : format("%s:%s", i.environment, i.branch_pattern) => i
-  }
-  repository     = github_repository.this.name
-  environment    = github_repository_environment.this[each.value.environment].environment
-  branch_pattern = each.value.branch_pattern
-}
-
 # repository_ruleset
 resource "github_repository_ruleset" "this" {
   for_each    = var.rulesets != null ? var.rulesets : {}
@@ -456,4 +355,5 @@ resource "github_repository_ruleset" "this" {
       }
     }
   }
+  depends_on = [module.environment]
 }

@@ -1,3 +1,19 @@
+module "environment" {
+  for_each               = var.environments != null ? var.environments : {}
+  source                 = "./modules/environment"
+  repository             = github_repository.this.name
+  environment            = each.key
+  wait_timer             = try(each.value.wait_timer, null)
+  can_admins_bypass      = try(each.value.can_admins_bypass, null)
+  prevent_self_review    = try(each.value.prevent_self_review, null)
+  reviewers_teams        = try(each.value.reviewers_teams, null)
+  reviewers_users        = try(each.value.reviewers_users, null)
+  protected_branches     = try(each.value.protected_branches, null)
+  custom_branch_policies = try(each.value.custom_branch_policies, null)
+  secrets                = try(each.value.secrets, null)
+  secrets_encrypted      = try(each.value.secrets_encrypted, null)
+  variables              = try(each.value.variables, null)
+}
 
 module "file" {
   for_each       = var.files != null ? { for f in var.files : sha1(format("%s:%s", try(f.branch, "_default_"), f.file)) => f } : {}

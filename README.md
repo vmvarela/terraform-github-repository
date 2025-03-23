@@ -55,6 +55,7 @@ module "repo" {
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_environment"></a> [environment](#module\_environment) | ./modules/environment | n/a |
 | <a name="module_file"></a> [file](#module\_file) | ./modules/file | n/a |
 | <a name="module_webhook"></a> [webhook](#module\_webhook) | ./modules/webhook | n/a |
 
@@ -62,9 +63,6 @@ module "repo" {
 
 | Name | Type |
 |------|------|
-| [github_actions_environment_secret.encrypted](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_environment_secret) | resource |
-| [github_actions_environment_secret.plaintext](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_environment_secret) | resource |
-| [github_actions_environment_variable.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_environment_variable) | resource |
 | [github_actions_repository_access_level.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_repository_access_level) | resource |
 | [github_actions_repository_permissions.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_repository_permissions) | resource |
 | [github_actions_secret.encrypted](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_secret) | resource |
@@ -81,8 +79,6 @@ module "repo" {
 | [github_repository_custom_property.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_custom_property) | resource |
 | [github_repository_dependabot_security_updates.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_dependabot_security_updates) | resource |
 | [github_repository_deploy_key.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_deploy_key) | resource |
-| [github_repository_environment.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_environment) | resource |
-| [github_repository_environment_deployment_policy.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_environment_deployment_policy) | resource |
 | [github_repository_ruleset.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_ruleset) | resource |
 | [local_file.private_key_file](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [null_resource.create_subfolder](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
@@ -124,7 +120,7 @@ module "repo" {
 | <a name="input_enable_secret_scanning"></a> [enable\_secret\_scanning](#input\_enable\_secret\_scanning) | (Optional) Use to enable or disable secret scanning for this repository. If set to `true`, the repository's visibility must be `public` or `enable_advanced_security` must also be `true`. | `bool` | `null` | no |
 | <a name="input_enable_secret_scanning_push_protection"></a> [enable\_secret\_scanning\_push\_protection](#input\_enable\_secret\_scanning\_push\_protection) | (Optional) Use to enable or disable secret scanning push protection for this repository. If set to `true`, the repository's visibility must be `public` or `enable_advanced_security` must also be `true`. | `bool` | `null` | no |
 | <a name="input_enable_vulnerability_alerts"></a> [enable\_vulnerability\_alerts](#input\_enable\_vulnerability\_alerts) | (Optional) Either `true` to enable vulnerability alerts, or `false` to disable vulnerability alerts. | `bool` | `null` | no |
-| <a name="input_environments"></a> [environments](#input\_environments) | (Optional) The list of environments configuration of the repository (key: environment\_name) | <pre>map(object({<br/>    wait_timer             = optional(number)<br/>    can_admins_bypass      = optional(bool)<br/>    prevent_self_review    = optional(bool)<br/>    reviewers_users        = optional(set(string), [])<br/>    reviewers_teams        = optional(set(string), [])<br/>    protected_branches     = optional(bool)<br/>    custom_branch_policies = optional(set(string))<br/>    secrets                = optional(map(string))<br/>    secrets_encrypted      = optional(map(string))<br/>    variables              = optional(map(string))<br/>  }))</pre> | `null` | no |
+| <a name="input_environments"></a> [environments](#input\_environments) | (Optional) The list of environments configuration of the repository (key: environment\_name). See [environment module](./modules/environment/README.md) for arguments. | `any` | `null` | no |
 | <a name="input_files"></a> [files](#input\_files) | (Optional) The list of files of the repository (key: file\_path). See [file module](./modules/file/README.md) for arguments. | `list(any)` | `null` | no |
 | <a name="input_gitignore_template"></a> [gitignore\_template](#input\_gitignore\_template) | (Optional) Use the [name of the template](https://github.com/github/gitignore) without the extension. For example, `Haskell`. | `string` | `null` | no |
 | <a name="input_has_downloads"></a> [has\_downloads](#input\_has\_downloads) | (Optional) Whether downloads are enabled. | `bool` | `null` | no |

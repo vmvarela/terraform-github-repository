@@ -1,7 +1,7 @@
 module "repo" {
   source         = "../.."
   name           = "test-repository-simple"
-  visibility     = "private"
+  visibility     = "public"
   default_branch = "master"
   topics         = ["terraform-test"]
   template       = "vmvarela/template"
@@ -32,5 +32,12 @@ module "repo" {
   ]
   issue_labels = {
     "good-first-issue" = "Good for begginners in this project"
+  }
+  environments = {
+    "simple-env" = {
+      variables = {
+        "VAR" = "VAL"
+      }
+    }
   }
 }

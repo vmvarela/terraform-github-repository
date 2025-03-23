@@ -2,7 +2,7 @@ provider "github" {}
 
 variables {
   name           = "tftest-repository-simple"
-  visibility     = "private"
+  visibility     = "public"
   default_branch = "master"
   topics         = ["terraform-test"]
   template       = "vmvarela/template"
@@ -44,6 +44,14 @@ variables {
 
   issue_labels = {
     "good-first-issue" = "Good for begginners in this project"
+  }
+
+  environments = {
+    "staging" = {
+      variables = {
+        "var" = "val"
+      }
+    }
   }
 }
 

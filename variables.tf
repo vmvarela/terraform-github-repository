@@ -389,20 +389,9 @@ variable "files" {
 }
 
 variable "environments" {
-  description = "(Optional) The list of environments configuration of the repository (key: environment_name)"
-  type = map(object({
-    wait_timer             = optional(number)
-    can_admins_bypass      = optional(bool)
-    prevent_self_review    = optional(bool)
-    reviewers_users        = optional(set(string), [])
-    reviewers_teams        = optional(set(string), [])
-    protected_branches     = optional(bool)
-    custom_branch_policies = optional(set(string))
-    secrets                = optional(map(string))
-    secrets_encrypted      = optional(map(string))
-    variables              = optional(map(string))
-  }))
-  default = null
+  description = "(Optional) The list of environments configuration of the repository (key: environment_name). See [environment module](./modules/environment/README.md) for arguments."
+  type        = any
+  default     = null
 }
 
 variable "deploy_keys" {
