@@ -18,9 +18,18 @@ The module enables infrastructure-as-code practices for GitHub repositories, sup
 module "repo" {
   source         = "github.com/vmvarela/terraform-github-repository"
   name           = "my-repo"
-  visibility     = "private"
+  visibility     = "public"
   default_branch = "main"
   template       = "MarketingPipeline/Awesome-Repo-Template"
+  rulesets = {
+    "codeql-scanning-required" = {
+      target  = "branch"
+      include = ["~DEFAULT_BRANCH"]
+      required_code_scanning = {
+        "CodeQL" = "none:errors_and_warnings"
+      }
+    }
+  }
 }
 ```
 

@@ -70,5 +70,6 @@ module "ruleset" {
   required_linear_history              = try(each.value.required_linear_history, null)
   required_signatures                  = try(each.value.required_signatures, null)
   required_checks                      = try(each.value.required_checks, [])
+  required_code_scanning               = try(each.value.required_code_scanning, {})
   depends_on                           = [module.environment]
 }

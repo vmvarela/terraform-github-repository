@@ -65,5 +65,12 @@ module "repo" {
       include            = ["~ALL"]
       forbidden_deletion = true
     }
+    "test-5" = {
+      target  = "branch"
+      include = ["master"]
+      required_code_scanning = {
+        "CodeQL" = "none:errors_and_warnings"
+      }
+    }
   }
 }

@@ -129,5 +129,18 @@ resource "github_repository_ruleset" "this" {
         }
       }
     }
+    dynamic "required_code_scanning" {
+      for_each = length(var.required_code_scanning) > 0 ? [1] : []
+      content {
+        dynamic "required_code_scanning_tool" {
+          for_each = var.required_code_scanning
+          content {
+            tool                      = required_code_scanning_tool.key
+            security_alerts_threshold = try(split(":", required_code_scanning_tool.value)[0], "none")
+            alerts_threshold          = try(split(":", required_code_scanning_tool.value)[1], "none")
+          }
+        }
+      }
+    }
   }
 }

@@ -175,3 +175,9 @@ variable "required_checks" {
   type        = set(string)
   default     = []
 }
+
+variable "required_code_scanning" {
+  description = "(Optional) The severity levels at which code scanning results that raise security alerts and alerts block a reference update. (key: tool, value are two severity values separated by ':'. First (security alerts) can be one of: `none`, `critical`, `high_or_higher`, `medium_or_higher`, `all` and second (alerts) can be one of: `none`, `critical`, `high_or_higher`, `medium_or_higher`, `all` `none`, `errors`, `errors_and_warnings`, `all`)."
+  type        = map(string)
+  default     = {}
+}
