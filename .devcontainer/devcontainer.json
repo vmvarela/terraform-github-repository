@@ -14,7 +14,8 @@
       "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config,target=/root/.config,type=bind,consistency=cached"
     ],
     "features": {
-      "ghcr.io/cirolosapio/devcontainers-features/alpine-docker-outside-of-docker:0": {}
+      "ghcr.io/cirolosapio/devcontainers-features/alpine-docker-outside-of-docker:0": {},
+      "ghcr.io/devcontainers-extra/features/act:1": {}
     },
     "customizations": {
       "vscode": {
@@ -26,4 +27,4 @@
         }
       }
     }
-  }
+}

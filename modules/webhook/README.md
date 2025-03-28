@@ -42,12 +42,12 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_content_type"></a> [content\_type](#input\_content\_type) | (Required) The content type for the payload. Valid values are either `form` or `json`. | `string` | n/a | yes |
-| <a name="input_events"></a> [events](#input\_events) | (Required) A list of events which should trigger the webhook. See a list of [available events](https://docs.github.com/es/webhooks/webhook-events-and-payloads). | `set(string)` | `[]` | no |
-| <a name="input_insecure_ssl"></a> [insecure\_ssl](#input\_insecure\_ssl) | (Optional) Insecure SSL boolean toggle. | `bool` | `false` | no |
-| <a name="input_repository"></a> [repository](#input\_repository) | (Required) The repository of the webhook. | `string` | n/a | yes |
-| <a name="input_secret"></a> [secret](#input\_secret) | (Optional) The shared secret for the webhook | `string` | `null` | no |
-| <a name="input_url"></a> [url](#input\_url) | (Required) The URL of the webhook. | `string` | n/a | yes |
+| <a name="input_content_type"></a> [content\_type](#input\_content\_type) | The content type for the payload. Valid values are either `form` or `json`. | `string` | n/a | yes |
+| <a name="input_events"></a> [events](#input\_events) | A list of events which should trigger the webhook. See a list of [available events](https://docs.github.com/es/webhooks/webhook-events-and-payloads). | `set(string)` | `[]` | no |
+| <a name="input_insecure_ssl"></a> [insecure\_ssl](#input\_insecure\_ssl) | Insecure SSL boolean toggle. | `bool` | `false` | no |
+| <a name="input_repository"></a> [repository](#input\_repository) | The repository of the webhook. | `string` | n/a | yes |
+| <a name="input_secret"></a> [secret](#input\_secret) | The shared secret for the webhook | `string` | `null` | no |
+| <a name="input_url"></a> [url](#input\_url) | The URL of the webhook. | `string` | n/a | yes |
 
 ## Outputs
 
