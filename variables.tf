@@ -370,7 +370,7 @@ variable "squash_merge_commit_message" {
 }
 
 variable "teams" {
-  description = "The list of collaborators (teams) of the repository"
+  description = "The map of collaborators (teams) of the repository and their permissions (`pull`, `push`, `maintain`, `triage`, `admin` or an existing custom repository role) )"
   type        = map(string)
   default     = {}
 }
@@ -394,7 +394,7 @@ variable "topics" {
 }
 
 variable "users" {
-  description = "The list of collaborators (users) of the repository"
+  description = "The map of collaborators (users) of the repository and their permissions (`pull`, `push`, `maintain`, `triage`, `admin` or an existing custom repository role) )"
   type        = map(string)
   default     = {}
 }
