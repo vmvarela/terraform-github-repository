@@ -157,7 +157,7 @@ variable "deploy_keys" {
 variable "deploy_keys_path" {
   description = "The path to the auto-generated deploy keys for this repository"
   type        = string
-  default     = "./deploy_keys"
+  default     = null
 }
 
 variable "description" {
