@@ -130,7 +130,6 @@ module "repo" {
 | <a name="input_environments"></a> [environments](#input\_environments) | The list of environments configuration of the repository (key: environment\_name). See environment sub-module for details. | `any` | `{}` | no |
 | <a name="input_files"></a> [files](#input\_files) | The list of files of the repository (key: file\_path). See file sub-module for details. | `any` | `{}` | no |
 | <a name="input_gitignore_template"></a> [gitignore\_template](#input\_gitignore\_template) | Use the [name of the template](https://github.com/github/gitignore) without the extension. For example, `Haskell`. | `string` | `null` | no |
-| <a name="input_has_downloads"></a> [has\_downloads](#input\_has\_downloads) | Whether downloads are enabled. | `bool` | `null` | no |
 | <a name="input_has_issues"></a> [has\_issues](#input\_has\_issues) | Either `true` to enable issues for this repository or `false` to disable them. | `bool` | `null` | no |
 | <a name="input_has_projects"></a> [has\_projects](#input\_has\_projects) | Either `true` to enable projects for this repository or `false` to disable them. **Note:** If you're creating a repository in an organization that has disabled repository projects, the default is `false`, and if you pass `true`, the API returns an error. | `bool` | `null` | no |
 | <a name="input_has_wiki"></a> [has\_wiki](#input\_has\_wiki) | Either `true` to enable the wiki for this repository, `false` to disable it. | `bool` | `null` | no |
