@@ -195,7 +195,7 @@ resource "github_repository_collaborators" "this" {
     for_each = var.teams
     content {
       permission = team.value
-      team_id    = tonumber(team.key)
+      team_id    = team.key
     }
   }
 }
