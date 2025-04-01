@@ -40,3 +40,7 @@ terraform.rc
 
 deploy_keys
 corp
+
+
+# ignore direnv file
+.envrc

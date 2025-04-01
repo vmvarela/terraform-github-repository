@@ -1,13 +1,14 @@
 FROM alpine:3.21
 
-ENV TERRAFORM_VERSION=1.11.1
 ENV TERRAFORM_DOCS_VERSION=0.19.0
 ENV TFLINT_VERSION=0.55.1
 
 # Instalar dependencias necesarias
-RUN apk update && apk add --no-cache \
+RUN echo '@community https://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories && \
+    apk update && apk add --no-cache \
     bash \
     curl \
+    direnv \
     fish \
     gcompat \
     git \
@@ -19,17 +20,11 @@ RUN apk update && apk add --no-cache \
     nodejs \
     npm \
     openssh \
+    opentofu@community \
     pre-commit \
     py3-pip \
     unzip \
     && rm -rf /var/cache/apk/*
-
-# Instalar Terraform
-RUN curl -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
-    && cd /tmp \
-    && unzip terraform.zip \
-    && mv terraform /usr/local/bin/ \
-    && rm -rf *
 
 # Instalar Terraform-docs
 RUN curl -L https://github.com/terraform-docs/terraform-docs/releases/download/v${TERRAFORM_DOCS_VERSION}/terraform-docs-v${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz > terraform-docs.tgz && \

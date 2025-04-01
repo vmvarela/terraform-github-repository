@@ -19,7 +19,7 @@ variables {
     "SECRETO" = "VALOR"
   }
   secrets_encrypted = {
-    "CLAVE" = base64encode("VALOR-ENCRIPTADO")
+    "CLAVE" = "VkFMT1ItRU5DUklQVEFETw==" # Pre-encoded value of "VALOR-ENCRIPTADO"
   }
   dependabot_copy_secrets = true
 
