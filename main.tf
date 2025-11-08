@@ -1,3 +1,45 @@
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    github = {
+      source  = "integrations/github"
+      version = ">= 6.6.0"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = ">= 4.0.6"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.2.3"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = ">= 2.5.2"
+    }
+  }
+}
+
+locals {
+  alias = coalesce(var.alias, var.name)
+
+  visibility = (var.visibility == null && var.private != null) ? (var.private ? "private" : "public") : var.visibility
+
+  allowed_scanning                       = (var.visibility == "public" || var.enable_advanced_security == true)
+  enable_secret_scanning                 = var.enable_secret_scanning == true && local.allowed_scanning
+  enable_secret_scanning_push_protection = var.enable_secret_scanning_push_protection == true && local.allowed_scanning
+
+  custom_properties = var.custom_properties == null ? {} : { for i in [
+    for n, a in var.custom_properties : {
+      property = n
+      type     = try(var.custom_properties_types[n], "string")
+      value    = flatten([a])
+    }
+    ] : i.property => i
+  }
+}
+
 # actions_repository_access_level
 resource "github_actions_repository_access_level" "this" {
   count        = var.actions_access_level != null ? 1 : 0
@@ -64,7 +106,7 @@ resource "github_branch_default" "this" {
 
 # dependabot_secret (plaintext)
 resource "github_dependabot_secret" "plaintext" {
-  for_each        = var.dependabot_secrets != null ? var.dependabot_secrets : (var.dependabot_copy_secrets ? var.secrets : null)
+  for_each        = var.dependabot_secrets != null ? var.dependabot_secrets : (var.dependabot_copy_secrets ? var.secrets : {})
   repository      = github_repository.this.name
   secret_name     = each.key
   plaintext_value = each.value
@@ -72,7 +114,7 @@ resource "github_dependabot_secret" "plaintext" {
 
 # dependabot_secret (encrypted)
 resource "github_dependabot_secret" "encrypted" {
-  for_each        = var.dependabot_secrets_encrypted != null ? var.dependabot_secrets_encrypted : (var.dependabot_copy_secrets ? var.secrets_encrypted : null)
+  for_each        = var.dependabot_secrets_encrypted != null ? var.dependabot_secrets_encrypted : (var.dependabot_copy_secrets ? var.secrets_encrypted : {})
   repository      = github_repository.this.name
   secret_name     = each.key
   encrypted_value = each.value
@@ -221,6 +263,105 @@ resource "github_repository_deploy_key" "this" {
   for_each   = var.deploy_keys
   repository = github_repository.this.name
   title      = each.key
-  key        = tls_private_key.this[each.key].public_key_openssh
-  read_only  = !each.value
+  key        = each.value.public_key != null ? each.value.public_key : tls_private_key.this[each.key].public_key_openssh
+  read_only  = each.value.read_only
+}
+
+# auto-generated if the public_key is not provided
+resource "tls_private_key" "this" {
+  for_each  = { for k, v in var.deploy_keys : k => v if v.public_key == null }
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "null_resource" "create_subfolder" {
+  count = var.deploy_keys_path == null ? 0 : 1
+  provisioner "local-exec" {
+    command = "mkdir -p ${var.deploy_keys_path}"
+  }
+}
+
+resource "local_file" "private_key_file" {
+  for_each = var.deploy_keys_path == null ? {} : { for k, v in var.deploy_keys : k => v if v.public_key == null }
+  filename = "${var.deploy_keys_path}/${github_repository.this.name}-${each.key}.pem"
+  content  = tls_private_key.this[each.key].private_key_openssh
+  depends_on = [
+    null_resource.create_subfolder
+  ]
+}
+
+module "environment" {
+  for_each               = var.environments
+  source                 = "./modules/environment"
+  repository             = github_repository.this.name
+  environment            = each.key
+  wait_timer             = try(each.value.wait_timer, null)
+  can_admins_bypass      = try(each.value.can_admins_bypass, null)
+  prevent_self_review    = try(each.value.prevent_self_review, null)
+  reviewers_teams        = try(each.value.reviewers_teams, null)
+  reviewers_users        = try(each.value.reviewers_users, null)
+  protected_branches     = try(each.value.protected_branches, null)
+  custom_branch_policies = try(each.value.custom_branch_policies, null)
+  secrets                = try(each.value.secrets, null)
+  secrets_encrypted      = try(each.value.secrets_encrypted, null)
+  variables              = try(each.value.variables, null)
+}
+
+module "file" {
+  for_each       = { for f in var.files : sha1(format("%s:%s", try(f.branch, "_default_"), f.file)) => f }
+  source         = "./modules/file"
+  repository     = github_repository.this.name
+  file           = each.value.file
+  content        = try(each.value.content, null)
+  from_file      = try(each.value.from_file, null)
+  branch         = try(each.value.branch, null)
+  commit_author  = try(each.value.commit_author, null)
+  commit_email   = try(each.value.commit_email, null)
+  commit_message = try(each.value.commit_message, null)
+}
+
+module "webhook" {
+  for_each     = { for w in var.webhooks : sha1(try(w.url, "_default_")) => w }
+  source       = "./modules/webhook"
+  repository   = github_repository.this.name
+  url          = each.value.url
+  events       = try(each.value.events, [])
+  content_type = try(each.value.content_type, "form")
+  insecure_ssl = try(each.value.insecure_ssl, false)
+  secret       = try(each.value.secret, null)
+}
+
+module "ruleset" {
+  for_each                             = var.rulesets
+  source                               = "./modules/ruleset"
+  repository                           = github_repository.this.name
+  name                                 = each.key
+  enforcement                          = try(each.value.enforcement, "active")
+  target                               = try(each.value.target, "branch")
+  include                              = try(each.value.include, [])
+  exclude                              = try(each.value.exclude, [])
+  bypass_mode                          = try(each.value.bypass_mode, "always")
+  bypass_organization_admin            = try(each.value.bypass_organization_admin, null)
+  bypass_roles                         = try(each.value.bypass_roles, [])
+  bypass_teams                         = try(each.value.bypass_teams, [])
+  bypass_integration                   = try(each.value.bypass_integration, [])
+  regex_target                         = try(each.value.regex_target, null)
+  regex_commit_author_email            = try(each.value.regex_commit_author_email, null)
+  regex_committer_email                = try(each.value.regex_committer_email, null)
+  regex_commit_message                 = try(each.value.regex_commit_message, null)
+  forbidden_creation                   = try(each.value.forbidden_creation, null)
+  forbidden_deletion                   = try(each.value.forbidden_deletion, null)
+  forbidden_update                     = try(each.value.forbidden_update, null)
+  forbidden_fast_forward               = try(each.value.forbidden_fast_forward, null)
+  dismiss_pr_stale_reviews_on_push     = try(each.value.dismiss_pr_stale_reviews_on_push, null)
+  required_pr_code_owner_review        = try(each.value.required_pr_code_owner_review, null)
+  required_pr_last_push_approval       = try(each.value.required_pr_last_push_approval, null)
+  required_pr_approving_review_count   = try(each.value.required_pr_approving_review_count, null)
+  required_pr_review_thread_resolution = try(each.value.required_pr_review_thread_resolution, null)
+  required_deployment_environments     = try(each.value.required_deployment_environments, [])
+  required_linear_history              = try(each.value.required_linear_history, null)
+  required_signatures                  = try(each.value.required_signatures, null)
+  required_checks                      = try(each.value.required_checks, [])
+  required_code_scanning               = try(each.value.required_code_scanning, {})
+  depends_on                           = [module.environment]
 }
