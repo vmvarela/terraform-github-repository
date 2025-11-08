@@ -1,10 +1,17 @@
-# Single repository creation
+# Simple Repository Example
 
-Configuration in this directory creates a repository using a template.
+This example demonstrates how to create a basic GitHub repository with minimal configuration using this Terraform module.
 
-# Usage
+## Features
 
-To run this example you need to set `GITHUB_TOKEN` environment variable and execute:
+- Basic repository with public visibility
+- Issue tracking and wiki enabled
+- Repository topics for better discoverability
+- Simple branch protection on the main branch
+
+## Usage
+
+To run this example you need to set the `GITHUB_TOKEN` environment variable and execute:
 
 ```bash
 $ terraform init

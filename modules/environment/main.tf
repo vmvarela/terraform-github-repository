@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    github = {
+      source  = "integrations/github"
+      version = ">= 6.6.0"
+    }
+  }
+}
+
 # repository_environment
 resource "github_repository_environment" "this" {
   repository          = var.repository
