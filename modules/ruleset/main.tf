@@ -1,3 +1,23 @@
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    github = {
+      source  = "integrations/github"
+      version = ">= 6.6.0"
+    }
+  }
+}
+
+locals {
+  repository_roles = {
+    "maintain" = 2
+    "write"    = 4
+    "admin"    = 5
+  }
+}
+
+
 # repository_ruleset
 resource "github_repository_ruleset" "this" {
   repository  = var.repository
@@ -71,7 +91,7 @@ resource "github_repository_ruleset" "this" {
       for_each = var.regex_commit_author_email != null ? [1] : []
       content {
         operator = "regex"
-        pattern  = var.var.regex_commit_author_email
+        pattern  = var.regex_commit_author_email
       }
     }
     dynamic "commit_message_pattern" {

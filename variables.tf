@@ -149,9 +149,12 @@ variable "dependabot_secrets_encrypted" {
 }
 
 variable "deploy_keys" {
-  description = "The list of auto-generated deploy keys of the repository (key: key_title, value: true if can write)"
-  type        = map(bool)
-  default     = {}
+  description = "The list of deploy keys of the repository. Each key can have: `public_key` (public key content, if null will be auto-generated) and `read_only` (bool, defaults to true)"
+  type = map(object({
+    public_key = optional(string, null)
+    read_only  = optional(bool, true)
+  }))
+  default = {}
 }
 
 variable "deploy_keys_path" {
